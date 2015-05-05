@@ -7,8 +7,8 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "control_mode_switcher_node");
 
   ROS_DEBUG("Starting Control Mode Switcher Node");
-
-  control_mode_switcher::ControlModeSwitcher control_mode_switcher;
+  ros::NodeHandle nh("");
+  control_mode_switcher::ControlModeSwitcher control_mode_switcher(nh);
   ros::spin();
   exit(0);
 }
