@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <vigir_humanoid_control_msgs/ChangeControlModeAction.h>
 #include <actionlib/server/simple_action_server.h>
+#include <flor_control_msgs/FlorControlMode.h>
 namespace control_mode_switcher{
 
     class ControlModeSwitcher {
@@ -11,13 +12,31 @@ namespace control_mode_switcher{
     public:
       ControlModeSwitcher(ros::NodeHandle& nh);
       virtual ~ControlModeSwitcher();
+
     protected:
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
+
     private:
-     //actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
      ros::NodeHandle nh_;
+     ros::Publisher mode_changed_pub_;
      actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
+
     };
+}
+
+namespace thor_mang_control_mode{
+
+    const unsigned char NONE = 0;
+    const unsigned char FREEZE = 1;
+    const unsigned char STAND_PREP = 2;
+    const unsigned char STAND = 3;
+    const unsigned char STAND_MANIPULATE = 3;
+    const unsigned char WALK = 4;
+    const unsigned char STEP = 5;
+    const unsigned char MANIPULATE = 6;
+    const unsigned char USER = 7;
+    const unsigned char CALIBRATE = 8;
+    const unsigned char SOFT_STOP = 9;
 }
 
 
