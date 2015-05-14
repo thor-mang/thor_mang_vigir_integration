@@ -26,6 +26,7 @@ namespace control_mode_switcher{
     protected:
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
      void goToStandMode();
+     bool stand_complete = true;
      void trajectoryActiveCB();
 
      void trajectoryFeedbackCB(const vigir_planning_msgs::MoveFeedbackConstPtr& feedback);

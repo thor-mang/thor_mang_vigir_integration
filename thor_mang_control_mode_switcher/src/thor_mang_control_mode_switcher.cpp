@@ -157,12 +157,20 @@ namespace control_mode_switcher{
             trajectory_client_->sendGoal(trajectory_action_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
                                          boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
                                          boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
+            stand_complete = false;
+
+            ros::Rate rate(ros::Duration(0.1));
+            while (!stand_complete){
+                rate.sleep();
+            }
+            return;
         }
 
     }
 
     void ControlModeSwitcher::trajectoryActiveCB()
     {
+        stand_complete = true;
     }
 
     void ControlModeSwitcher::trajectoryFeedbackCB(const vigir_planning_msgs::MoveFeedbackConstPtr& feedback)
@@ -172,6 +180,7 @@ namespace control_mode_switcher{
     void ControlModeSwitcher::trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
                                                const vigir_planning_msgs::MoveResultConstPtr& result)
     {
+
     }
 
 
