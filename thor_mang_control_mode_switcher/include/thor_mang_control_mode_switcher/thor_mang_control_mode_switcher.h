@@ -10,12 +10,13 @@
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <vigir_planning_msgs/MoveAction.h>
 #include <control_msgs/FollowJointTrajectoryGoal.h>
+#include <control_msgs/FollowJointTrajectoryAction.h>
 #include <control_msgs/FollowJointTrajectoryActionFeedback.h>
 #include <control_msgs/FollowJointTrajectoryActionResult.h>
 #include <moveit_msgs/Constraints.h>
 #include <moveit_msgs/JointConstraint.h>
 namespace control_mode_switcher{
-    typedef actionlib::SimpleActionClient<vigir_planning_msgs::MoveAction> TrajectoryActionClient;
+    typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> TrajectoryActionClient;
 
     class ControlModeSwitcher {
 
@@ -26,12 +27,12 @@ namespace control_mode_switcher{
     protected:
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
      void goToStandMode();
-     bool stand_complete = true;
+     bool stand_complete;
      void trajectoryActiveCB();
 
-     void trajectoryFeedbackCB(const vigir_planning_msgs::MoveFeedbackConstPtr& feedback);
+     void trajectoryFeedbackCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr& feedback);
      void trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
-                                                       const vigir_planning_msgs::MoveResultConstPtr& result);
+                                                       const control_msgs::FollowJointTrajectoryResultConstPtr& result);
 
 
     private:
@@ -41,7 +42,9 @@ namespace control_mode_switcher{
      //actionlib::SimpleActionClient<vigir_planning_msgs::MoveAction> trajectory_client_;
 
      ros::ServiceClient execute_kinematic_path_client_;
-     TrajectoryActionClient* trajectory_client_;
+     TrajectoryActionClient* trajectory_client_left_;
+     TrajectoryActionClient* trajectory_client_right_;
+
     };
 }
 
