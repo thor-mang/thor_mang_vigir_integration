@@ -8,8 +8,13 @@ namespace control_mode_switcher{
        nh_ = nh;
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, false);
+       execute_kinematic_path_client_ = nh_.serviceClient<moveit_msgs::ExecuteKnownTrajectory>("/execute_kinematic_path");
 
     }
+
+
+    ControlModeSwitcher::~ControlModeSwitcher()
+    {}
 
 
      void ControlModeSwitcher::executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr &goal) {
@@ -49,6 +54,7 @@ namespace control_mode_switcher{
           else if (mode_request == "stand")  {
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STAND;
              changed_mode_msg.control_mode = thor_mang_control_mode::STAND;
+             goToStandMode();
           }
 
           else if (mode_request == "stand_manipulate")  {
@@ -100,8 +106,48 @@ namespace control_mode_switcher{
 
      }
 
-    ControlModeSwitcher::~ControlModeSwitcher()
-    {}
+    void ControlModeSwitcher::goToStandMode(){
+
+        moveit_msgs::ExecuteKnownTrajectory::Request req;
+        std::vector<std::string> names;
+        std::vector<double> positions,velocities, accelerations;
+
+        names.push_back("l_ankle_pitch");positions.push_back(0.5920838259292829);
+        names.push_back("l_ankle_roll");positions.push_back( -0.06228113556334662);
+        names.push_back("l_hip_pitch");positions.push_back( -0.736909995463745);
+        names.push_back( "l_hip_roll");positions.push_back( -0.062043325761155385);
+        names.push_back( "l_hip_yaw");positions.push_back( 1.2516305378486057e-05);
+        names.push_back( "l_knee");positions.push_back( 1.1722896780543826);
+        names.push_back( "r_ankle_pitch");positions.push_back( -0.5921088585400399);
+        names.push_back( "r_ankle_roll");positions.push_back( 0.06164280398904383);
+        names.push_back("r_hip_pitch");positions.push_back(0.7369350280745021);
+        names.push_back( "r_hip_roll");positions.push_back( 0.06183054856972112);
+        names.push_back( "r_hip_yaw");positions.push_back(-1.2516305378486057e-05);
+        names.push_back( "r_knee");positions.push_back(-1.1723397432758964);
+
+
+        for (int i=0;i< names.size();i++){
+          velocities.push_back(0.0);
+          accelerations.push_back(0.0);
+        }
+
+        req.trajectory.joint_trajectory.joint_names = names;
+
+        trajectory_msgs::JointTrajectoryPoint point;
+            point.positions = positions;
+            point.velocities = velocities;
+            point.accelerations = accelerations;
+            point.time_from_start = ros::Duration(4.0);
+
+            req.trajectory.joint_trajectory.points.push_back(point);
+            req.trajectory.joint_trajectory.header.stamp = ros::Time::now();
+
+       moveit_msgs::ExecuteKnownTrajectory srv;
+       srv.request =req;
+       execute_kinematic_path_client_.waitForExistence();
+       execute_kinematic_path_client_.call(srv);
+
+    }
 
 }
 

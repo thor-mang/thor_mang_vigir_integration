@@ -5,6 +5,8 @@
 #include <vigir_humanoid_control_msgs/ChangeControlModeAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <flor_control_msgs/FlorControlMode.h>
+#include <moveit_msgs/ExecuteKnownTrajectory.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
 namespace control_mode_switcher{
 
     class ControlModeSwitcher {
@@ -15,11 +17,13 @@ namespace control_mode_switcher{
 
     protected:
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
+     void goToStandMode();
 
     private:
      ros::NodeHandle nh_;
      ros::Publisher mode_changed_pub_;
      actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
+     ros::ServiceClient execute_kinematic_path_client_;
 
     };
 }
