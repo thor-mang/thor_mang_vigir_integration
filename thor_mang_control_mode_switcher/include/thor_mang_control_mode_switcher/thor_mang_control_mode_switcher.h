@@ -4,10 +4,18 @@
 #include <ros/ros.h>
 #include <vigir_humanoid_control_msgs/ChangeControlModeAction.h>
 #include <actionlib/server/simple_action_server.h>
+#include <actionlib/client/simple_action_client.h>
 #include <flor_control_msgs/FlorControlMode.h>
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <vigir_planning_msgs/MoveAction.h>
+#include <control_msgs/FollowJointTrajectoryGoal.h>
+#include <control_msgs/FollowJointTrajectoryActionFeedback.h>
+#include <control_msgs/FollowJointTrajectoryActionResult.h>
+#include <moveit_msgs/Constraints.h>
+#include <moveit_msgs/JointConstraint.h>
 namespace control_mode_switcher{
+    typedef actionlib::SimpleActionClient<vigir_planning_msgs::MoveAction> TrajectoryActionClient;
 
     class ControlModeSwitcher {
 
@@ -18,13 +26,21 @@ namespace control_mode_switcher{
     protected:
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
      void goToStandMode();
+     void trajectoryActiveCB();
+
+     void trajectoryFeedbackCB(const vigir_planning_msgs::MoveFeedbackConstPtr& feedback);
+     void trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
+                                                       const vigir_planning_msgs::MoveResultConstPtr& result);
+
 
     private:
      ros::NodeHandle nh_;
      ros::Publisher mode_changed_pub_;
      actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
-     ros::ServiceClient execute_kinematic_path_client_;
+     //actionlib::SimpleActionClient<vigir_planning_msgs::MoveAction> trajectory_client_;
 
+     ros::ServiceClient execute_kinematic_path_client_;
+     TrajectoryActionClient* trajectory_client_;
     };
 }
 

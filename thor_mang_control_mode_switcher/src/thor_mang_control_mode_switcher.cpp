@@ -8,7 +8,9 @@ namespace control_mode_switcher{
        nh_ = nh;
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, false);
-       execute_kinematic_path_client_ = nh_.serviceClient<moveit_msgs::ExecuteKnownTrajectory>("/execute_kinematic_path");
+       //execute_kinematic_path_client_ = nh_.serviceClient<moveit_msgs::ExecuteKnownTrajectory>("/execute_kinematic_path");
+
+       trajectory_client_ = new  TrajectoryActionClient("/vigir_move_group", true);
 
     }
 
@@ -108,46 +110,70 @@ namespace control_mode_switcher{
 
     void ControlModeSwitcher::goToStandMode(){
 
-        moveit_msgs::ExecuteKnownTrajectory::Request req;
         std::vector<std::string> names;
-        std::vector<double> positions,velocities, accelerations;
+        std::vector<double> positions, velocities, accelerations;
 
-        names.push_back("l_ankle_pitch");positions.push_back(0.5920838259292829);
-        names.push_back("l_ankle_roll");positions.push_back( -0.06228113556334662);
-        names.push_back("l_hip_pitch");positions.push_back( -0.736909995463745);
-        names.push_back( "l_hip_roll");positions.push_back( -0.062043325761155385);
-        names.push_back( "l_hip_yaw");positions.push_back( 1.2516305378486057e-05);
-        names.push_back( "l_knee");positions.push_back( 1.1722896780543826);
-        names.push_back( "r_ankle_pitch");positions.push_back( -0.5921088585400399);
-        names.push_back( "r_ankle_roll");positions.push_back( 0.06164280398904383);
-        names.push_back("r_hip_pitch");positions.push_back(0.7369350280745021);
-        names.push_back( "r_hip_roll");positions.push_back( 0.06183054856972112);
-        names.push_back( "r_hip_yaw");positions.push_back(-1.2516305378486057e-05);
-        names.push_back( "r_knee");positions.push_back(-1.1723397432758964);
+        names.push_back("l_ankle_pitch");   positions.push_back(0.5920838259292829);
+        names.push_back("l_ankle_roll");    positions.push_back(-0.06228113556334662);
+        names.push_back("l_hip_pitch");     positions.push_back(-0.736909995463745);
+        names.push_back("l_hip_roll");      positions.push_back(-0.062043325761155385);
+        names.push_back("l_hip_yaw");       positions.push_back(1.2516305378486057e-05);
+        names.push_back("l_knee");          positions.push_back(1.1722896780543826);
+        names.push_back("r_ankle_pitch");   positions.push_back(-0.5921088585400399);
+        names.push_back("r_ankle_roll");    positions.push_back(0.06164280398904383);
+        names.push_back("r_hip_pitch");     positions.push_back(0.7369350280745021);
+        names.push_back("r_hip_roll");      positions.push_back(0.06183054856972112);
+        names.push_back("r_hip_yaw");       positions.push_back(-1.2516305378486057e-05);
+        names.push_back("r_knee");          positions.push_back(-1.1723397432758964);
 
 
-        for (int i=0;i< names.size();i++){
+        for (int i=0; i< names.size(); i++) {
           velocities.push_back(0.0);
           accelerations.push_back(0.0);
         }
 
-        req.trajectory.joint_trajectory.joint_names = names;
-
         trajectory_msgs::JointTrajectoryPoint point;
-            point.positions = positions;
-            point.velocities = velocities;
-            point.accelerations = accelerations;
-            point.time_from_start = ros::Duration(4.0);
+        point.positions = positions;
+        point.velocities = velocities;
+        point.accelerations = accelerations;
+        point.time_from_start = ros::Duration(4.0);
 
-            req.trajectory.joint_trajectory.points.push_back(point);
-            req.trajectory.joint_trajectory.header.stamp = ros::Time::now();
+        vigir_planning_msgs::MoveGoal trajectory_action_;
+        while (!trajectory_client_->waitForServer(ros::Duration(5.0)))
+           ROS_INFO("[control_mode_changer] Waititing for lower Body TrajectoryActionServer");
+        if (trajectory_client_->isServerConnected())
+        {
+            trajectory_action_.request.group_name = "lower_body_group";
+            moveit_msgs::Constraints constraints;
+            moveit_msgs::JointConstraint joint_constraint;
 
-       moveit_msgs::ExecuteKnownTrajectory srv;
-       srv.request =req;
-       execute_kinematic_path_client_.waitForExistence();
-       execute_kinematic_path_client_.call(srv);
+            for (int i=0; i<names.size(); i++) {
+                joint_constraint.joint_name = names[i];
+                joint_constraint.position = positions[i];
+                constraints.joint_constraints.push_back(joint_constraint);
+            }
+
+            trajectory_action_.request.goal_constraints.push_back(constraints);
+            trajectory_client_->sendGoal(trajectory_action_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
+                                         boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
+                                         boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
+        }
 
     }
+
+    void ControlModeSwitcher::trajectoryActiveCB()
+    {
+    }
+
+    void ControlModeSwitcher::trajectoryFeedbackCB(const vigir_planning_msgs::MoveFeedbackConstPtr& feedback)
+    {
+    }
+
+    void ControlModeSwitcher::trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
+                                               const vigir_planning_msgs::MoveResultConstPtr& result)
+    {
+    }
+
 
 }
 
