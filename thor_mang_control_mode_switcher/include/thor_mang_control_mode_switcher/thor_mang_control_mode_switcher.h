@@ -15,6 +15,10 @@
 #include <control_msgs/FollowJointTrajectoryActionResult.h>
 #include <moveit_msgs/Constraints.h>
 #include <moveit_msgs/JointConstraint.h>
+#include <controller_manager_msgs/SwitchController.h>
+#include <controller_manager_msgs/ListControllers.h>
+#include <controller_manager_msgs/ControllerState.h>
+
 namespace control_mode_switcher{
     typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> TrajectoryActionClient;
 
@@ -29,7 +33,10 @@ namespace control_mode_switcher{
      void goToStandMode();
      bool stand_complete;
      void trajectoryActiveCB();
-
+     void getStartedAndStoppedControllers();
+     bool switchControllers(std::vector<std::string> controllers_to_start);
+     bool switchToTrajectoryControllers();
+     bool switchToWalkingControllers();
      void trajectoryFeedbackCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr& feedback);
      void trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
                                                        const control_msgs::FollowJointTrajectoryResultConstPtr& result);
@@ -39,11 +46,14 @@ namespace control_mode_switcher{
      ros::NodeHandle nh_;
      ros::Publisher mode_changed_pub_;
      actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
-     //actionlib::SimpleActionClient<vigir_planning_msgs::MoveAction> trajectory_client_;
 
-     ros::ServiceClient execute_kinematic_path_client_;
+     ros::ServiceClient switch_controllers_client_;
+     ros::ServiceClient list_controllers_client_;
      TrajectoryActionClient* trajectory_client_left_;
      TrajectoryActionClient* trajectory_client_right_;
+
+     std::vector<std::string> started_controllers;
+     std::vector<std::string> stopped_controllers;
 
     };
 }
