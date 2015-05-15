@@ -56,6 +56,8 @@ namespace control_mode_switcher{
      std::vector<std::string> started_controllers;
      std::vector<std::string> stopped_controllers;
 
+     bool run_on_real_robot;
+
     };
 }
 

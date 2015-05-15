@@ -6,6 +6,8 @@ namespace control_mode_switcher{
         control_mode_action_server(nh, "/mode_controllers/control_mode_controller/change_control_mode", boost::bind(&ControlModeSwitcher::executeSwitchControlModeCallback, this, _1), false)
     {
        nh_ = nh;
+
+       nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, false);
        switch_controllers_client_ = nh_.serviceClient<controller_manager_msgs::SwitchController>("/thor_mang/controller_manager/switch_controller");
@@ -320,6 +322,10 @@ namespace control_mode_switcher{
 
         std::vector<std::string> controllers_to_start;
 
+        if (run_on_real_robot) {
+        controllers_to_start.push_back("imu_sensor_controller");
+        controllers_to_start.push_back("force_torque_sensor_controller");
+        }
         controllers_to_start.push_back("joint_state_controller");
         controllers_to_start.push_back("left_arm_traj_controller");
         controllers_to_start.push_back("right_arm_traj_controller");
@@ -335,7 +341,11 @@ namespace control_mode_switcher{
     bool ControlModeSwitcher::switchToWalkManipulateControllers(){
         std::vector<std::string> controllers_to_start;
 
+        if (run_on_real_robot) {
         controllers_to_start.push_back("step_controller");
+        controllers_to_start.push_back("imu_sensor_controller");
+        controllers_to_start.push_back("force_torque_sensor_controller");
+        }
         controllers_to_start.push_back("joint_state_controller");
         controllers_to_start.push_back("torso_traj_controller");
         controllers_to_start.push_back("head_traj_controller");
@@ -350,7 +360,12 @@ namespace control_mode_switcher{
 
         std::vector<std::string> controllers_to_start;
 
+        if (run_on_real_robot) {
         controllers_to_start.push_back("step_manipulate_controller");
+        controllers_to_start.push_back("imu_sensor_controller");
+        controllers_to_start.push_back("force_torque_sensor_controller");
+        }
+
         controllers_to_start.push_back("joint_state_controller");
         controllers_to_start.push_back("torso_traj_controller");
         controllers_to_start.push_back("head_traj_controller");
