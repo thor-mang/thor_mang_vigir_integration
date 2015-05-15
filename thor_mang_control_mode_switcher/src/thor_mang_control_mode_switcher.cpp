@@ -66,43 +66,45 @@ namespace control_mode_switcher{
              changed_mode_msg.control_mode = thor_mang_control_mode::NONE;
           }
 
-          else if (mode_request == "soft_stop")  {
+          else if (mode_request == "soft_stop") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::SOFT_STOP;
              changed_mode_msg.control_mode = thor_mang_control_mode::SOFT_STOP;
           }
 
-          else if (mode_request == "stand")  {
+          else if (mode_request == "stand") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STAND;
              changed_mode_msg.control_mode = thor_mang_control_mode::STAND;
-             goToStandMode();
+//             if (!run_on_real_robot) {
+//                 goToStandMode();
+//             }
           }
 
-          else if (mode_request == "stand_manipulate")  {
+          else if (mode_request == "stand_manipulate") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STAND_MANIPULATE;
              changed_mode_msg.control_mode = thor_mang_control_mode::STAND_MANIPULATE;
           }
 
-          else if (mode_request == "stand_prep")  {
+          else if (mode_request == "stand_prep") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STAND_PREP;
              changed_mode_msg.control_mode = thor_mang_control_mode::STAND_PREP;
           }
 
-          else if (mode_request == "step")  {
+          else if (mode_request == "step") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STEP;
              changed_mode_msg.control_mode = thor_mang_control_mode::STEP;
           }
 
-          else if (mode_request == "user")  {
+          else if (mode_request == "user") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::USER;
