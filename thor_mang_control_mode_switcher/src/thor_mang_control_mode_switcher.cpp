@@ -18,7 +18,7 @@ namespace control_mode_switcher{
        getStartedAndStoppedControllers();
        started_controllers.push_back("joint_state_controller");
        started_controllers.push_back("joint_state_controller");
-       // /step_controller  -> + zweiter typ spater ohne haende /step_manipulate_conroller
+       // /step_controller  -> + zweiter typ spater ohne haende /step_manipulate_controller
     }
 
 
@@ -110,6 +110,13 @@ namespace control_mode_switcher{
           else if (mode_request == "walk") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToWalkingControllers();
+             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::WALK;
+             changed_mode_msg.control_mode = thor_mang_control_mode::WALK;
+          }
+
+          else if (mode_request == "walk_manipulate") {
+             getStartedAndStoppedControllers();
+             switch_successfull = switchToWalkManipulateControllers();
              changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::WALK;
              changed_mode_msg.control_mode = thor_mang_control_mode::WALK;
           }
@@ -325,8 +332,7 @@ namespace control_mode_switcher{
         return switchControllers(controllers_to_start);
     }
 
-    bool ControlModeSwitcher::switchToWalkingControllers(){
-
+    bool ControlModeSwitcher::switchToWalkManipulateControllers(){
         std::vector<std::string> controllers_to_start;
 
         controllers_to_start.push_back("step_controller");
@@ -334,6 +340,22 @@ namespace control_mode_switcher{
         controllers_to_start.push_back("torso_traj_controller");
         controllers_to_start.push_back("head_traj_controller");
         controllers_to_start.push_back("waist_lidar_controller");
+        controllers_to_start.push_back("left_arm_traj_controller");
+        controllers_to_start.push_back("right_arm_traj_controller");
+
+        return switchControllers(controllers_to_start);
+    }
+
+    bool ControlModeSwitcher::switchToWalkingControllers(){
+
+        std::vector<std::string> controllers_to_start;
+
+        controllers_to_start.push_back("step_manipulate_controller");
+        controllers_to_start.push_back("joint_state_controller");
+        controllers_to_start.push_back("torso_traj_controller");
+        controllers_to_start.push_back("head_traj_controller");
+        controllers_to_start.push_back("waist_lidar_controller");
+
 
         return switchControllers(controllers_to_start);
     }

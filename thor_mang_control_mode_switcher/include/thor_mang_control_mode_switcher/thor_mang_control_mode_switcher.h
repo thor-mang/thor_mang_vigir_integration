@@ -37,6 +37,7 @@ namespace control_mode_switcher{
      bool switchControllers(std::vector<std::string> controllers_to_start);
      bool switchToTrajectoryControllers();
      bool switchToWalkingControllers();
+     bool switchToWalkManipulateControllers();
      void trajectoryFeedbackCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr& feedback);
      void trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
                                                        const control_msgs::FollowJointTrajectoryResultConstPtr& result);
