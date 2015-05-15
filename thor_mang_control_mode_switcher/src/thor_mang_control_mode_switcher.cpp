@@ -342,7 +342,7 @@ namespace control_mode_switcher{
         std::vector<std::string> controllers_to_start;
 
         if (run_on_real_robot) {
-        controllers_to_start.push_back("step_controller");
+        controllers_to_start.push_back("step_manipulate_controller");
         controllers_to_start.push_back("imu_sensor_controller");
         controllers_to_start.push_back("force_torque_sensor_controller");
         }
@@ -361,7 +361,7 @@ namespace control_mode_switcher{
         std::vector<std::string> controllers_to_start;
 
         if (run_on_real_robot) {
-        controllers_to_start.push_back("step_manipulate_controller");
+        controllers_to_start.push_back("step_controller");
         controllers_to_start.push_back("imu_sensor_controller");
         controllers_to_start.push_back("force_torque_sensor_controller");
         }
