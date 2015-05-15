@@ -1,0 +1,17 @@
+<package>
+  <name>thor_mang_logger</name>
+  <version>1.0.0</version>
+  <description>
+     thor_mang_logger provides auto-logging of several important topics.
+  </description>
+  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/thor_mang_logger</url>
+  <author>Philipp Schillinger</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rospy</run_depend>
+
+</package>
