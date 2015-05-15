@@ -253,17 +253,17 @@ namespace control_mode_switcher{
 
     bool ControlModeSwitcher::switchControllers(std::vector<std::string> desired_controllers_to_start){
 
-        for (int i = 0;i < desired_controllers_to_start.size();i++){
-        std::cout << "desired to start:" << desired_controllers_to_start[i] << std::endl;
-        }
+//        for (int i = 0;i < desired_controllers_to_start.size();i++){
+//        std::cout << "desired to start:" << desired_controllers_to_start[i] << std::endl;
+//        }
 
-        for (int i = 0;i < started_controllers.size();i++){
-        std::cout << "running:" << started_controllers[i] << std::endl;
-        }
+//        for (int i = 0;i < started_controllers.size();i++){
+//        std::cout << "running:" << started_controllers[i] << std::endl;
+//        }
 
-        for (int i = 0;i < stopped_controllers.size();i++){
-        std::cout << "not running:" << stopped_controllers[i] << std::endl;
-        }
+//        for (int i = 0;i < stopped_controllers.size();i++){
+//        std::cout << "not running:" << stopped_controllers[i] << std::endl;
+//        }
 
         std::vector<std::string> controllers_to_stop;
         std::vector<std::string> controllers_to_start;
@@ -296,12 +296,12 @@ namespace control_mode_switcher{
             }
         }
 
-        for (int i = 0;i < controllers_to_start.size();i++){
-        std::cout << "starting:" << controllers_to_start[i] << std::endl;
-        }
-        for (int i = 0;i < controllers_to_stop.size();i++){
-        std::cout << "stopping:" << controllers_to_stop[i] << std::endl;
-        }
+//        for (int i = 0;i < controllers_to_start.size();i++){
+//        std::cout << "starting:" << controllers_to_start[i] << std::endl;
+//        }
+//        for (int i = 0;i < controllers_to_stop.size();i++){
+//        std::cout << "stopping:" << controllers_to_stop[i] << std::endl;
+//        }
         if ((controllers_to_start.size() > 0) || (controllers_to_stop.size() > 0)) {
         controller_manager_msgs::SwitchController srv;
         srv.request.start_controllers = controllers_to_start;
