@@ -1,0 +1,6 @@
+bagfile_path: ~/autolog
+topics_to_record: 
+- /tf
+- /vigir/global_footstep_planner/step_plan_request/goal
+- /vigir/global_footstep_planner/step_plan_request/feedback
+- /vigir/global_footstep_planner/step_plan_request/result
