@@ -2,5 +2,6 @@
 
 <launch>
 <param name="run_on_real_robot" value="false" type="bool" />
+<rosparam file="$(find thor_mang_control_mode_switcher)/config/atlas_active_controllers_by_control_mode.yaml" />
 <node name="control_mode_switcher_node" pkg="thor_mang_control_mode_switcher" type="thor_mang_control_mode_switcher_node" respawn="true" output="screen" />
 </launch>

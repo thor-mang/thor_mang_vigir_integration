@@ -61,7 +61,7 @@ namespace control_mode_switcher{
     };
 }
 
-namespace thor_mang_control_mode{
+namespace thor_mang_bdi_control_mode{
 
     const unsigned char NONE = 0;
     const unsigned char FREEZE = 1;
@@ -75,6 +75,26 @@ namespace thor_mang_control_mode{
     const unsigned char CALIBRATE = 8;
     const unsigned char SOFT_STOP = 9;
 }
+
+namespace thor_mang_control_mode{
+const unsigned char NONE = 0;
+const unsigned char STOP = 1;
+const unsigned char FREEZE = 2;
+const unsigned char STAND_PREP = 3;
+const unsigned char STAND = 4;
+const unsigned char WALK = 5;
+const unsigned char STEP = 6;
+const unsigned char MANIPULATE = 7;
+const unsigned char DANCE = 8;
+const unsigned char WHOLE_BODY = 9;
+const unsigned char CALIBRATE = 10;
+const unsigned char SOFT_STOP = 11;
+const unsigned char STAND_MANIPULATE = 12;
+const unsigned char WALK_MANIPULATE = 13;
+const unsigned char STEP_MANIPULATE = 14;
+
+}
+
 
 
 #endif // THOR_MANG_CONTROL_MODE_SWITCHER_H

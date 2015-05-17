@@ -41,42 +41,42 @@ namespace control_mode_switcher{
           if (mode_request == "calibrate")  {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::CALIBRATE;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::CALIBRATE;
              changed_mode_msg.control_mode = thor_mang_control_mode::CALIBRATE;
           }
 
           else if (mode_request == "freeze")  {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::FREEZE;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::FREEZE;
              changed_mode_msg.control_mode = thor_mang_control_mode::FREEZE;
           }
 
           else if (mode_request == "manipulate")  {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::MANIPULATE;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::MANIPULATE;
              changed_mode_msg.control_mode = thor_mang_control_mode::MANIPULATE;
           }
 
           else if (mode_request == "none")  {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::NONE;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::NONE;
              changed_mode_msg.control_mode = thor_mang_control_mode::NONE;
           }
 
           else if (mode_request == "soft_stop") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::SOFT_STOP;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::SOFT_STOP;
              changed_mode_msg.control_mode = thor_mang_control_mode::SOFT_STOP;
           }
 
           else if (mode_request == "stand") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STAND;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND;
              changed_mode_msg.control_mode = thor_mang_control_mode::STAND;
 //             if (!run_on_real_robot) {
 //                 goToStandMode();
@@ -86,43 +86,43 @@ namespace control_mode_switcher{
           else if (mode_request == "stand_manipulate") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STAND_MANIPULATE;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND_MANIPULATE;
              changed_mode_msg.control_mode = thor_mang_control_mode::STAND_MANIPULATE;
           }
 
           else if (mode_request == "stand_prep") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STAND_PREP;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND_PREP;
              changed_mode_msg.control_mode = thor_mang_control_mode::STAND_PREP;
           }
 
           else if (mode_request == "step") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::STEP;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STEP;
              changed_mode_msg.control_mode = thor_mang_control_mode::STEP;
           }
 
           else if (mode_request == "user") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::USER;
-             changed_mode_msg.control_mode = thor_mang_control_mode::USER;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::USER;
+             changed_mode_msg.control_mode = thor_mang_control_mode::NONE;
           }
 
           else if (mode_request == "walk") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToWalkingControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::WALK;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::WALK;
              changed_mode_msg.control_mode = thor_mang_control_mode::WALK;
           }
 
           else if (mode_request == "walk_manipulate") {
              getStartedAndStoppedControllers();
              switch_successfull = switchToWalkManipulateControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_control_mode::WALK;
-             changed_mode_msg.control_mode = thor_mang_control_mode::WALK;
+             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::WALK;
+             changed_mode_msg.control_mode = thor_mang_control_mode::WALK_MANIPULATE;
           }
 
           else {
@@ -344,9 +344,13 @@ namespace control_mode_switcher{
         std::vector<std::string> controllers_to_start;
 
         if (run_on_real_robot) {
-        controllers_to_start.push_back("step_manipulate_controller");
-        controllers_to_start.push_back("imu_sensor_controller");
-        controllers_to_start.push_back("force_torque_sensor_controller");
+            controllers_to_start.push_back("step_manipulate_controller");
+            controllers_to_start.push_back("imu_sensor_controller");
+            controllers_to_start.push_back("force_torque_sensor_controller");
+        }
+        else{
+            controllers_to_start.push_back("left_leg_traj_controller");
+            controllers_to_start.push_back("right_leg_traj_controller");
         }
         controllers_to_start.push_back("joint_state_controller");
         controllers_to_start.push_back("torso_traj_controller");
@@ -366,6 +370,12 @@ namespace control_mode_switcher{
         controllers_to_start.push_back("step_controller");
         controllers_to_start.push_back("imu_sensor_controller");
         controllers_to_start.push_back("force_torque_sensor_controller");
+        }
+        else{
+            controllers_to_start.push_back("left_arm_traj_controller");
+            controllers_to_start.push_back("right_arm_traj_controller");
+            controllers_to_start.push_back("left_leg_traj_controller");
+            controllers_to_start.push_back("right_leg_traj_controller");
         }
 
         controllers_to_start.push_back("joint_state_controller");
