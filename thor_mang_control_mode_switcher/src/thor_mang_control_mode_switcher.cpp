@@ -39,10 +39,11 @@ namespace control_mode_switcher{
      }
 
      void ControlModeSwitcher::executeFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionGoalConstPtr& goal){
-         if (!goal->goal.step_plan.steps.empty()){
+         //if (!goal->goal.step_plan.steps.empty()){
          std::string new_mode = (current_mode_ == "stand_manipulate")? "walk_manipulate" : "walk";
          changeControlMode(new_mode);
-         }
+         ROS_INFO("[control_mode_switcher] footstep plan size : %d   !!!!!!!!!!!!!!!!!!!!!!",goal->goal.step_plan.steps.size());
+         //}
 
 
 
