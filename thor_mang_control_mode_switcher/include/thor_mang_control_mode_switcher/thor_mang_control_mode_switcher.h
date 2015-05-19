@@ -18,6 +18,8 @@
 #include <controller_manager_msgs/SwitchController.h>
 #include <controller_manager_msgs/ListControllers.h>
 #include <controller_manager_msgs/ControllerState.h>
+#include <vigir_footstep_planning_msgs/ExecuteStepPlanActionGoal.h>
+#include <vigir_footstep_planning_msgs/ExecuteStepPlanActionResult.h>
 
 namespace control_mode_switcher{
     typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> TrajectoryActionClient;
@@ -31,9 +33,12 @@ namespace control_mode_switcher{
     protected:
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
      void goToStandMode();
-     bool stand_complete;
+
      void trajectoryActiveCB();
      void getStartedAndStoppedControllers();
+     void executeFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionGoalConstPtr& goal);
+     void resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result);
+     void changeControlMode(std::string mode_request);
      bool switchControllers(std::vector<std::string> controllers_to_start);
      bool switchToTrajectoryControllers();
      bool switchToWalkingControllers();
@@ -46,6 +51,10 @@ namespace control_mode_switcher{
     private:
      ros::NodeHandle nh_;
      ros::Publisher mode_changed_pub_;
+
+     ros::Subscriber execute_footstep_sub_;
+     ros::Subscriber result_footstep_sub_;
+
      actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
 
      ros::ServiceClient switch_controllers_client_;
@@ -57,6 +66,9 @@ namespace control_mode_switcher{
      std::vector<std::string> stopped_controllers;
 
      bool run_on_real_robot;
+     bool stand_complete;
+
+     std::string current_mode_;
 
     };
 }

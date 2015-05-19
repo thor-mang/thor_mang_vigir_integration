@@ -7,9 +7,13 @@ namespace control_mode_switcher{
     {
        nh_ = nh;
 
+       current_mode_ = "none";
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, false);
+
+       execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
+       execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
        switch_controllers_client_ = nh_.serviceClient<controller_manager_msgs::SwitchController>("/thor_mang/controller_manager/switch_controller");
        list_controllers_client_ = nh_.serviceClient<controller_manager_msgs::ListControllers>("/thor_mang/controller_manager/list_controllers");
 
@@ -29,13 +33,36 @@ namespace control_mode_switcher{
 
 
      void ControlModeSwitcher::executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr &goal) {
+           std::string mode_request = goal->mode_request;
+           changeControlMode( mode_request);
 
+     }
+
+     void ControlModeSwitcher::executeFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionGoalConstPtr& goal){
+         if (!goal->goal.step_plan.steps.empty()){
+         std::string new_mode = (current_mode_ == "stand_manipulate")? "walk_manipulate" : "walk";
+         changeControlMode(new_mode);
+         }
+
+
+
+     }
+
+     void ControlModeSwitcher::resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result){
+         if ( (current_mode_ == "walk") || (current_mode_ =="walk_manipulate") ){
+         std::string new_mode = (current_mode_ == "walk_manipulate")? "stand_manipulate" : "stand";
+         changeControlMode(new_mode);
+         }
+
+     }
+
+     void ControlModeSwitcher::changeControlMode(std::string mode_request){
          bool switch_successfull = true;
          flor_control_msgs::FlorControlMode changed_mode_msg;
          vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
-         std::string mode_request = goal->mode_request;
 
-         // Publish changed mode       
+
+         // Publish changed mode
          changed_mode_msg.header.stamp = ros::Time::now();
 
           if (mode_request == "calibrate")  {
@@ -139,6 +166,7 @@ namespace control_mode_switcher{
               action_result.result.requested_control_mode = mode_request;
               action_result.result.current_control_mode = mode_request;
               control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
+              current_mode_ = mode_request;
               ROS_INFO("[control mode changer] Successfully switched to mode %s !", mode_request.c_str());
           }
           else{
