@@ -42,7 +42,6 @@ namespace control_mode_switcher{
          //if (!goal->goal.step_plan.steps.empty()){
          std::string new_mode = (current_mode_ == "stand_manipulate")? "walk_manipulate" : "walk";
          changeControlMode(new_mode);
-         ROS_INFO("[control_mode_switcher] footstep plan size : %d   !!!!!!!!!!!!!!!!!!!!!!",goal->goal.step_plan.steps.size());
          //}
 
 
@@ -182,76 +181,77 @@ namespace control_mode_switcher{
 
      }
 
-    void ControlModeSwitcher::goToStandMode(){
 
-        std::vector<std::string> names_l, names_r;
-        std::vector<double> positions_l, positions_r;
+//    void ControlModeSwitcher::goToStandMode(){
 
-        names_l.push_back("l_ankle_pitch");   positions_l.push_back(0.5920838259292829);
-        names_l.push_back("l_ankle_roll");    positions_l.push_back(-0.06228113556334662);
-        names_l.push_back("l_hip_pitch");     positions_l.push_back(-0.736909995463745);
-        names_l.push_back("l_hip_roll");      positions_l.push_back(-0.062043325761155385);
-        names_l.push_back("l_hip_yaw");       positions_l.push_back(0.0);
-        names_l.push_back("l_knee");          positions_l.push_back(1.1722896780543826);
-        names_r.push_back("r_ankle_pitch");   positions_r.push_back(-0.5921088585400399);
-        names_r.push_back("r_ankle_roll");    positions_r.push_back(0.06164280398904383);
-        names_r.push_back("r_hip_pitch");     positions_r.push_back(0.7369350280745021);
-        names_r.push_back("r_hip_roll");      positions_r.push_back(0.06183054856972112);
-        names_r.push_back("r_hip_yaw");       positions_r.push_back(0.0);
-        names_r.push_back("r_knee");          positions_r.push_back(-1.1723397432758964);
+//        std::vector<std::string> names_l, names_r;
+//        std::vector<double> positions_l, positions_r;
 
-        control_msgs::FollowJointTrajectoryGoal trajectory_goal_r_;
-        control_msgs::FollowJointTrajectoryGoal trajectory_goal_l_;
-        if (!trajectory_client_left_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_changer] Time out while waititing for left_leg_traj_controller");
-        if (!trajectory_client_right_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_changer] Time out while waititing for right_leg_traj_controller");
-        if (trajectory_client_left_->isServerConnected() && trajectory_client_right_->isServerConnected() )
-        {
-            // Goal for left leg
-            trajectory_msgs::JointTrajectory joint_trajectory_l;
-            joint_trajectory_l.joint_names = names_l;
+//        names_l.push_back("l_ankle_pitch");   positions_l.push_back(0.5920838259292829);
+//        names_l.push_back("l_ankle_roll");    positions_l.push_back(-0.06228113556334662);
+//        names_l.push_back("l_hip_pitch");     positions_l.push_back(-0.736909995463745);
+//        names_l.push_back("l_hip_roll");      positions_l.push_back(-0.062043325761155385);
+//        names_l.push_back("l_hip_yaw");       positions_l.push_back(0.0);
+//        names_l.push_back("l_knee");          positions_l.push_back(1.1722896780543826);
+//        names_r.push_back("r_ankle_pitch");   positions_r.push_back(-0.5921088585400399);
+//        names_r.push_back("r_ankle_roll");    positions_r.push_back(0.06164280398904383);
+//        names_r.push_back("r_hip_pitch");     positions_r.push_back(0.7369350280745021);
+//        names_r.push_back("r_hip_roll");      positions_r.push_back(0.06183054856972112);
+//        names_r.push_back("r_hip_yaw");       positions_r.push_back(0.0);
+//        names_r.push_back("r_knee");          positions_r.push_back(-1.1723397432758964);
 
-            trajectory_msgs::JointTrajectoryPoint point_l;
-            point_l.positions = positions_l;
-            point_l.time_from_start = ros::Duration(2.0);
-            joint_trajectory_l.points.push_back(point_l);
+//        control_msgs::FollowJointTrajectoryGoal trajectory_goal_r_;
+//        control_msgs::FollowJointTrajectoryGoal trajectory_goal_l_;
+//        if (!trajectory_client_left_->waitForServer(ros::Duration(5.0)))
+//            ROS_WARN("[control_mode_changer] Time out while waititing for left_leg_traj_controller");
+//        if (!trajectory_client_right_->waitForServer(ros::Duration(5.0)))
+//            ROS_WARN("[control_mode_changer] Time out while waititing for right_leg_traj_controller");
+//        if (trajectory_client_left_->isServerConnected() && trajectory_client_right_->isServerConnected() )
+//        {
+//            // Goal for left leg
+//            trajectory_msgs::JointTrajectory joint_trajectory_l;
+//            joint_trajectory_l.joint_names = names_l;
 
-            trajectory_goal_l_.trajectory = joint_trajectory_l;
+//            trajectory_msgs::JointTrajectoryPoint point_l;
+//            point_l.positions = positions_l;
+//            point_l.time_from_start = ros::Duration(2.0);
+//            joint_trajectory_l.points.push_back(point_l);
 
-            //Goal for right leg
-            trajectory_msgs::JointTrajectory joint_trajectory_r;
-            joint_trajectory_r.joint_names = names_r;
+//            trajectory_goal_l_.trajectory = joint_trajectory_l;
 
-            trajectory_msgs::JointTrajectoryPoint point_r;
-            point_r.positions = positions_r;
-            point_r.time_from_start = ros::Duration(2.0);
-            joint_trajectory_r.points.push_back(point_r);
+//            //Goal for right leg
+//            trajectory_msgs::JointTrajectory joint_trajectory_r;
+//            joint_trajectory_r.joint_names = names_r;
+
+//            trajectory_msgs::JointTrajectoryPoint point_r;
+//            point_r.positions = positions_r;
+//            point_r.time_from_start = ros::Duration(2.0);
+//            joint_trajectory_r.points.push_back(point_r);
 
 
-            trajectory_goal_r_.trajectory = joint_trajectory_r;
+//            trajectory_goal_r_.trajectory = joint_trajectory_r;
 
-            //Send goals to controllers
-            trajectory_client_left_->sendGoal(trajectory_goal_l_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
-                                         boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
-                                         boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
+//            //Send goals to controllers
+//            trajectory_client_left_->sendGoal(trajectory_goal_l_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
+//                                         boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
+//                                         boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
 
-            trajectory_client_right_->sendGoal(trajectory_goal_r_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
-                                         boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
-                                         boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
-            stand_complete = false;
+//            trajectory_client_right_->sendGoal(trajectory_goal_r_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
+//                                         boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
+//                                         boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
+//            stand_complete = false;
 
-            ros::Rate rate(ros::Duration(0.1));
-            while (!stand_complete){
-                rate.sleep();
-            }
-            return;
-        }
-        else{
-            ROS_WARN("[control_mode_changer] Skipping Leg Motion");
-        }
+//            ros::Rate rate(ros::Duration(0.1));
+//            while (!stand_complete){
+//                rate.sleep();
+//            }
+//            return;
+//        }
+//        else{
+//            ROS_WARN("[control_mode_changer] Skipping Leg Motion");
+//        }
 
-    }
+//    }
 
     void ControlModeSwitcher::trajectoryActiveCB()
     {    }
