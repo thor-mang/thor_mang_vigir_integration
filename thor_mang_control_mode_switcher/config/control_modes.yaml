@@ -18,6 +18,7 @@ atlas_controller:
     allowed_control_modes:
         - "none"
         - "stop"
+        - "falling"
         - "freeze"
         - "stand_prep"
         - "stand"
@@ -25,21 +26,13 @@ atlas_controller:
         - "step"
         - "manipulate"
         - "whole_body"
-        - "dance"
         - "calibrate"
         - "soft_stop"
         - "stand_manipulate"
         - "walk_manipulate"
         - "step_manipulate"
-        - "manipulate_gravity"
-        - "manipulate_inverse_dynamics"
-        - "manipulate_limits"
-        - "manipulate_limits_stabilized"
-        - "manipulate_friction_with_gravity"
         - "manipulate_compliant_impedance"
         - "manipulate_stiff_impedance"
-        - "manipulate_observer_impedance"
-        - "dance_impedance"
     control_mode_to_controllers:
 #  "none" should be the first controller defined (No controllers active)
         none:
@@ -48,7 +41,6 @@ atlas_controller:
             switch_mode: 3
             active_joint_controllers: ["whole_body_tracking_controller", "neck_tracking_controller"]
             active_robot_controllers: []
-            nominal_hydraulic_pressure: 500
         stop:
 #   Force a reset of all controllers and footsteps (trajectory controllers reset to hold current position)
             bdi_mode: -1
@@ -56,7 +48,18 @@ atlas_controller:
             switch_mode: 3
             active_joint_controllers:  ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "neck_traj_controller", "lower_body_tracking_controller"]
             active_robot_controllers: []
-            nominal_hydraulic_pressure: 1500
+            transitions:
+                - "stand_prep"
+                - "whole_body"
+        falling:
+# Reacting to a fall
+            bdi_mode: 7
+            upper_body_control:  -1
+            switch_mode: 1
+            active_joint_controllers: ["whole_body_traj_controller", "neck_traj_controller"]
+            active_robot_controllers: []
+            transitions:
+                - "stop"
         freeze:
 # Lock all joints and do a hard reset
             bdi_mode: 1
@@ -64,152 +67,135 @@ atlas_controller:
             switch_mode: 3
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_tracking_controller"]
             active_robot_controllers: []
-            nominal_hydraulic_pressure: 500
+            trasitions:
+                - "stand_prep"
         stand_prep:
             bdi_mode: 2
             upper_body_control:  0
             switch_mode: 2
             active_joint_controllers: [ "neck_traj_controller", "whole_body_tracking_controller"]
             active_robot_controllers: []
-            nominal_hydraulic_pressure: 1500
+            transitions:
+                - "stand"
         stand:
             bdi_mode: 3
             upper_body_control:  0
             switch_mode: 2
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            nominal_hydraulic_pressure: 1250
+            transitions:
+                - "stand_manipulate"
+                - "walk"
+                - "step"
+                - "manipulate"
+                - "stand_manipulate"
+                - "manipulate_compliant_impedance"
+                - "manipulate_stiff_impedance"
         stand_manipulate:
             bdi_mode: 3
             upper_body_control:  1
             switch_mode: 2
             active_joint_controllers: [ "left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            nominal_hydraulic_pressure: 2600
+            transitions:
+                - "walk_manipulate"
+                - "step_manipulate"
+                - "manipulate"
+                - "manipulate_compliant_impedance"
+                - "manipulate_stiff_impedance"
         walk:
             bdi_mode: 4
             upper_body_control:  0
             switch_mode: 1
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            nominal_hydraulic_pressure: 1600
+            transitions:
+                - "stand"
         walk_manipulate:
             bdi_mode: 4
             upper_body_control:  1
             switch_mode: 1
             active_joint_controllers: [ "left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            nominal_hydraulic_pressure: 2300
+            transitions:
+                - "stand_manipulate"
         step:
             bdi_mode: 5
             upper_body_control:  0
             switch_mode: 1
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            nominal_hydraulic_pressure: 2000
+            transitions:
+                - "stand"
         step_manipulate:
             bdi_mode: 5
             upper_body_control:  1
             switch_mode: 1
             active_joint_controllers: [ "left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            nominal_hydraulic_pressure: 2300
+            transitions:
+                - "stand_manipulate"
         manipulate:
             bdi_mode: 6
             upper_body_control:  -1
             switch_mode: 1
             active_joint_controllers: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: ["pelvis_traj_controller" ]
-            nominal_hydraulic_pressure: 2600
+            transitions:
+                - "stand"
+                - "stand_manipulate"
+                - "manipulate_compliant_impedance"
+                - "manipulate_stiff_impedance"
         whole_body:
             bdi_mode: 7
             upper_body_control:  -1
             switch_mode: 1
             active_joint_controllers: ["whole_body_traj_controller", "neck_traj_controller"]
             active_robot_controllers: []
-            nominal_hydraulic_pressure: 2600
-        dance:
-            bdi_mode: 7
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "left_leg_traj_controller", "right_leg_traj_controller", "neck_traj_controller"]
-            active_robot_controllers: []
-            nominal_hydraulic_pressure: 2600
+            transitions:
+                - "stand"
         calibrate:
             bdi_mode: 8
             upper_body_control:  0
             switch_mode: 2
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: []
-            nominal_hydraulic_pressure: 2500
+            transitions:
+                - "stand_prep"
         soft_stop:
             bdi_mode: 9
             upper_body_control:  0
             switch_mode: 2
             active_joint_controllers: ["whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: []
-            nominal_hydraulic_pressure: 500
-        manipulate_gravity:
-            bdi_mode: 6
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
-            active_robot_controllers: ["pelvis_traj_controller", "gravity_compensation_controller" ]
-            nominal_hydraulic_pressure: 2600
-        manipulate_inverse_dynamics:
-            bdi_mode: 6
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
-            active_robot_controllers: ["pelvis_traj_controller", "inverse_dynamics_controller" ]
-            nominal_hydraulic_pressure: 2600
-        manipulate_limits:
-            bdi_mode: 6
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_joint_limit_traj_controller", "right_arm_joint_limit_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
-            active_robot_controllers: [ "pelvis_traj_controller" ]
-            nominal_hydraulic_pressure: 2600
-        manipulate_limits_stabilized:
-            bdi_mode: 7
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_joint_limit_traj_controller", "right_arm_joint_limit_traj_controller", "lower_body_relax_controller", "neck_traj_controller"]
-            active_robot_controllers: [ ]
-            nominal_hydraulic_pressure: 2600
-        manipulate_friction_with_gravity:
-            bdi_mode: 6
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
-            active_robot_controllers: ["pelvis_traj_controller", "gravity_compensation_controller", "friction_compensation_controller" ]
-            nominal_hydraulic_pressure: 2600
+            transitions:
+                - "stop"
         manipulate_compliant_impedance:
             bdi_mode: 6
             upper_body_control:  -1
             switch_mode: 1
             active_joint_controllers: ["left_arm_traj_impedance_controller", "right_arm_traj_impedance_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: ["pelvis_traj_controller", "left_arm_compliant_joint_impedance_controller", "right_arm_compliant_joint_impedance_controller" ]
-            nominal_hydraulic_pressure: 2600
+            transitions:
+                - "manipulate"
+                - "stand"
+                - "stand_manipulate"
+                - "manipulate_stiff_impedance"
         manipulate_stiff_impedance:
             bdi_mode: 6
             upper_body_control:  -1
             switch_mode: 1
             active_joint_controllers: ["left_arm_traj_hybrid_controller", "right_arm_traj_hybrid_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: ["pelvis_traj_controller", "left_arm_stiff_joint_impedance_controller", "right_arm_stiff_joint_impedance_controller" ]
-            nominal_hydraulic_pressure: 2600
-        manipulate_observer_impedance:
-            bdi_mode: 6
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_traj_hybrid_controller", "right_arm_traj_hybrid_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
-            active_robot_controllers: ["pelvis_traj_controller", "left_arm_observer_joint_impedance_controller", "right_arm_observer_joint_impedance_controller" ]
-            nominal_hydraulic_pressure: 2600
-        dance_impedance:
-            bdi_mode: 7
-            upper_body_control:  -1
-            switch_mode: 1
-            active_joint_controllers: ["left_arm_traj_impedance_controller", "right_arm_traj_impedance_controller", "left_leg_traj_impedance_controller", "right_leg_traj_impedance_controller", "torso_traj_controller", "neck_traj_controller"]
-            active_robot_controllers: ["left_arm_joint_impedance_controller", "right_arm_joint_impedance_controller", "left_leg_joint_impedance_controller", "right_leg_joint_impedance_controller" ]
-            nominal_hydraulic_pressure: 2600
+            transitions:
+                - "manipulate"
+                - "stand"
+                - "stand_manipulate"
+                - "manipulate_compliant_impedance"
+        all:
+            transitions:
+                - "freeze"
+                - "stop"
+                - "soft_stop"
+                - "falling"
 
