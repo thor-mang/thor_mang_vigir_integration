@@ -7,6 +7,33 @@ namespace control_mode_switcher{
     {
        nh_ = nh;
 
+//       std::cout << "before load"<< std::endl;
+//       std::vector< std::string > bla;
+//       std::string new_mode = "blamodes";
+//       std::string get_mode = "bla/"+new_mode;
+//       std::cout << get_mode << std::endl;
+       //nh_.getParam(get_mode, bla);
+       nh_.getParam("/atlas_controller/allowed_control_modes",allowed_control_modes);
+
+       for (int i= 0; i < allowed_control_modes.size(); i++) {
+           std::string temp_mode_string = "/atlas_controller/control_mode_to_controllers/"+allowed_control_modes[i]+"/bdi_mode";
+           int temp_bdi_mode;
+           nh_.param(temp_mode_string,temp_bdi_mode,-2);
+           bdi_control_modes.push_back(temp_bdi_mode);
+
+
+       }
+
+
+
+
+
+
+
+
+
+       //std::cout << bla[0] <<std::endl;
+
        current_mode_ = "none";
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
@@ -14,6 +41,9 @@ namespace control_mode_switcher{
 
        execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
        result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
+       ocs_mode_switch_sub_ = nh_.subscribe("/flor/controller/mode_command", 10, &ControlModeSwitcher::resultFootstepCb, this);
+
+
        switch_controllers_client_ = nh_.serviceClient<controller_manager_msgs::SwitchController>("/thor_mang/controller_manager/switch_controller");
        list_controllers_client_ = nh_.serviceClient<controller_manager_msgs::ListControllers>("/thor_mang/controller_manager/list_controllers");
 
@@ -56,106 +86,84 @@ namespace control_mode_switcher{
 
      }
 
+     void ControlModeSwitcher::ocsModeChangeCb(const flor_control_msgs::FlorControlModeCommand& mode){
+        int requested_mode = mode.requested_control_mode;
+        std::string switch_mode = "";
+        switch(requested_mode) {
+        case thor_mang_control_mode::NONE:
+            switch_mode = "none";
+        case thor_mang_control_mode::STOP:
+            switch_mode = "stop";
+        case thor_mang_control_mode::FREEZE:
+            switch_mode = "freeze";
+        case thor_mang_control_mode::STAND_PREP:
+            switch_mode = "stand_prep";
+        case thor_mang_control_mode::STAND:
+            switch_mode = "stand";
+        case thor_mang_control_mode::WALK:
+            switch_mode = "walk";
+        case thor_mang_control_mode::STEP:
+            switch_mode = "step";
+        case thor_mang_control_mode::MANIPULATE:
+            switch_mode = "manipulate";
+        case thor_mang_control_mode::DANCE:
+            switch_mode = "dance";
+        case thor_mang_control_mode::WHOLE_BODY:
+            switch_mode = "whole_body";
+        case thor_mang_control_mode::CALIBRATE:
+            switch_mode = "calibrate";
+        case thor_mang_control_mode::SOFT_STOP:
+            switch_mode = "soft_stop";
+        case thor_mang_control_mode::STAND_MANIPULATE:
+            switch_mode = "stand_manipulate";
+        case thor_mang_control_mode::WALK_MANIPULATE:
+            switch_mode = "walk_manipulate";
+        case thor_mang_control_mode::STEP_MANIPULATE:
+            switch_mode = "step_manipulate";
+        //case thor_mang_control_mode::MANIPULATE_GRAVITY = #        - "manipulate_gravity"
+        //case thor_mang_control_mode::MANIPULATE_INVERSE_DYNAMICS =#        - "manipulate_inverse_dynamics"
+        case thor_mang_control_mode::MANIPULATE_LIMITS:
+            switch_mode = "manipulate_limits";
+         //case thor_mang_control_mode:: - "manipulate_limits_stabilized"
+         //case thor_mang_control_mode::  - "manipulate_friction_with_gravity"
+        case thor_mang_control_mode::MANIPULATE_COMPLIANT_IMPEDANCE:
+            switch_mode = "manipulate_compliant_impedance";
+        case thor_mang_control_mode::MANIPULATE_STIFF_IMPEDANCE:
+            switch_mode = "manipulate_stiff_impedance";
+        case thor_mang_control_mode::MANIPULATE_OBSERVER_IMPEDANCE:
+            switch_mode = "manipulate_observer_impedance";
+        case thor_mang_control_mode::DANCE_IMPEDANCE:
+            switch_mode = "dance_impedance";
+        }
+
+     }
+
      void ControlModeSwitcher::changeControlMode(std::string mode_request){
-         bool switch_successfull = true;
-         flor_control_msgs::FlorControlMode changed_mode_msg;
-         vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
+          bool switch_successfull = true;
+          flor_control_msgs::FlorControlMode changed_mode_msg;
+          vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
 
-
-         // Publish changed mode
-         changed_mode_msg.header.stamp = ros::Time::now();
-
-          if (mode_request == "calibrate")  {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::CALIBRATE;
-             changed_mode_msg.control_mode = thor_mang_control_mode::CALIBRATE;
-          }
-
-          else if (mode_request == "freeze")  {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::FREEZE;
-             changed_mode_msg.control_mode = thor_mang_control_mode::FREEZE;
-          }
-
-          else if (mode_request == "manipulate")  {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::MANIPULATE;
-             changed_mode_msg.control_mode = thor_mang_control_mode::MANIPULATE;
-          }
-
-          else if (mode_request == "none")  {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::NONE;
-             changed_mode_msg.control_mode = thor_mang_control_mode::NONE;
-          }
-
-          else if (mode_request == "soft_stop") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::SOFT_STOP;
-             changed_mode_msg.control_mode = thor_mang_control_mode::SOFT_STOP;
-          }
-
-          else if (mode_request == "stand") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND;
-             changed_mode_msg.control_mode = thor_mang_control_mode::STAND;
-//             if (!run_on_real_robot) {
-//                 goToStandMode();
-//             }
-          }
-
-          else if (mode_request == "stand_manipulate") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND_MANIPULATE;
-             changed_mode_msg.control_mode = thor_mang_control_mode::STAND_MANIPULATE;
-          }
-
-          else if (mode_request == "stand_prep") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND_PREP;
-             changed_mode_msg.control_mode = thor_mang_control_mode::STAND_PREP;
-          }
-
-          else if (mode_request == "step") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STEP;
-             changed_mode_msg.control_mode = thor_mang_control_mode::STEP;
-          }
-
-          else if (mode_request == "user") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToTrajectoryControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::USER;
-             changed_mode_msg.control_mode = thor_mang_control_mode::NONE;
-          }
-
-          else if (mode_request == "walk") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToWalkingControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::WALK;
-             changed_mode_msg.control_mode = thor_mang_control_mode::WALK;
-          }
-
-          else if (mode_request == "walk_manipulate") {
-             getStartedAndStoppedControllers();
-             switch_successfull = switchToWalkManipulateControllers();
-             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::WALK;
-             changed_mode_msg.control_mode = thor_mang_control_mode::WALK_MANIPULATE;
-          }
-
-          else {
+          // get index of requested mode
+          std::vector<std::string>::iterator mode_idx= find (allowed_control_modes.begin (),allowed_control_modes.end (), mode_request );
+          int mode_idx_int;
+          if( mode_idx == allowed_control_modes.end() ) {
+              mode_idx_int = -1;
               switch_successfull = false;
               ROS_WARN("[control mode changer] %s is not a known control mode for thor, returning NOT SUCEEDED",mode_request.c_str());
           }
+          else{
+              mode_idx_int = std::distance( allowed_control_modes.begin(), mode_idx );
+          }
+
+          // Publish changed mode
+         changed_mode_msg.header.stamp = ros::Time::now();
+         getStartedAndStoppedControllers();
+         //to do load right controllers
+
+
+         changed_mode_msg.bdi_current_behavior = bdi_control_modes[mode_idx_int];
+         changed_mode_msg.control_mode = mode_idx_int;
+
 
           // If requested mode in known publish changed mode
           if (switch_successfull){
@@ -180,6 +188,151 @@ namespace control_mode_switcher{
 
 
      }
+
+
+//     void ControlModeSwitcher::changeControlMode(std::string mode_request){
+//         bool switch_successfull = true;
+//         flor_control_msgs::FlorControlMode changed_mode_msg;
+//         vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
+
+
+//         // Publish changed mode
+//         changed_mode_msg.header.stamp = ros::Time::now();
+
+//          if (mode_request == "calibrate")  {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::CALIBRATE;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::CALIBRATE;
+//          }
+
+//          else if (mode_request == "freeze")  {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::FREEZE;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::FREEZE;
+//          }
+
+//          else if (mode_request == "manipulate")  {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::MANIPULATE;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::MANIPULATE;
+//          }
+
+//          else if (mode_request == "none")  {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::NONE;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::NONE;
+//          }
+
+//          //TODO maybe go to a save pose for shutting down the robot
+//          else if (mode_request == "soft_stop") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::SOFT_STOP;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::SOFT_STOP;
+//          }
+
+//          else if (mode_request == "stand") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::STAND;
+////             if (!run_on_real_robot) {
+////                 goToStandMode();
+////             }
+//          }
+
+//          else if (mode_request == "stand_manipulate") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND_MANIPULATE;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::STAND_MANIPULATE;
+//          }
+
+//          else if (mode_request == "stand_prep") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STAND_PREP;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::STAND_PREP;
+//          }
+
+//          else if (mode_request == "step") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::STEP;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::STEP;
+//          }
+
+//          else if (mode_request == "user") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::USER;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::NONE;
+//          }
+
+//          else if (mode_request == "walk") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToWalkingControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::WALK;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::WALK;
+//          }
+
+//          else if (mode_request == "walk_manipulate") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToWalkManipulateControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::WALK;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::WALK_MANIPULATE;
+//          }
+//          else if (mode_request == "manipulate_stiff_impedance") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::IMPEDANCE_STIFF;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::MANIPULATE_STIFF_IMPEDANCE;
+//          }
+//          else if (mode_request == "manipulate_compliant_impedance") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::IMPEDANCE_COMPLIANT;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::MANIPULATE_COMPLIANT_IMPEDANCE;
+//          }
+//          else if (mode_request == "manipulate_observer_impedance") {
+//             getStartedAndStoppedControllers();
+//             switch_successfull = switchToTrajectoryControllers();
+//             changed_mode_msg.bdi_current_behavior = thor_mang_bdi_control_mode::IMPEDANCE_OBSERVER;
+//             changed_mode_msg.control_mode = thor_mang_control_mode::MANIPULATE_OBSERVER_IMPEDANCE;
+//          }
+
+//          else {
+//              switch_successfull = false;
+//              ROS_WARN("[control mode changer] %s is not a known control mode for thor, returning NOT SUCEEDED",mode_request.c_str());
+//          }
+
+//          // If requested mode in known publish changed mode
+//          if (switch_successfull){
+//              mode_changed_pub_.publish(changed_mode_msg);
+
+//              // Set Action Goal as succeeded
+//              action_result.result.status = action_result.result.MODE_ACCEPTED;
+//              action_result.result.requested_control_mode = mode_request;
+//              action_result.result.current_control_mode = mode_request;
+//              control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
+//              current_mode_ = mode_request;
+//              ROS_INFO("[control mode changer] Successfully switched to mode %s !", mode_request.c_str());
+//          }
+//          else{
+//              action_result.result.status = action_result.result.MODE_REJECTED;
+//              action_result.result.requested_control_mode = mode_request;
+//              action_result.result.current_control_mode = mode_request;
+//              control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
+//              ROS_WARN("[control mode changer] Not possible to switch to requested mode %s", mode_request.c_str());
+//          }
+
+
+
+//     }
 
 
 //    void ControlModeSwitcher::goToStandMode(){
@@ -419,5 +572,4 @@ namespace control_mode_switcher{
 
 
 }
-
 
