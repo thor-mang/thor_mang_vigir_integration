@@ -21,8 +21,15 @@ namespace control_mode_switcher{
            nh_.param(temp_mode_string,temp_bdi_mode,-2);
            bdi_control_modes.push_back(temp_bdi_mode);
 
+           std::string temp_controller_string = "/atlas_controller/control_mode_to_controllers/"+allowed_control_modes[i]+"/desired_controllers_to_start";
 
+           std::vector <std::string> temp_controllers;
+           nh_.getParam(temp_controller_string,temp_controllers);
+           desired_controllers.push_back(temp_controllers);
        }
+
+
+       nh_.getParam("/atlas_controller/control_mode_to_controllers/all/desired_controllers_to_start",default_desired_controllers);
 
 
 
@@ -41,7 +48,7 @@ namespace control_mode_switcher{
 
        execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
        result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
-       ocs_mode_switch_sub_ = nh_.subscribe("/flor/controller/mode_command", 10, &ControlModeSwitcher::resultFootstepCb, this);
+       ocs_mode_switch_sub_ = nh_.subscribe("/flor/controller/mode_command", 10, &ControlModeSwitcher::ocsModeChangeCb, this);
 
 
        switch_controllers_client_ = nh_.serviceClient<controller_manager_msgs::SwitchController>("/thor_mang/controller_manager/switch_controller");
@@ -88,53 +95,57 @@ namespace control_mode_switcher{
 
      void ControlModeSwitcher::ocsModeChangeCb(const flor_control_msgs::FlorControlModeCommand& mode){
         int requested_mode = mode.requested_control_mode;
-        std::string switch_mode = "";
-        switch(requested_mode) {
-        case thor_mang_control_mode::NONE:
-            switch_mode = "none";
-        case thor_mang_control_mode::STOP:
-            switch_mode = "stop";
-        case thor_mang_control_mode::FREEZE:
-            switch_mode = "freeze";
-        case thor_mang_control_mode::STAND_PREP:
-            switch_mode = "stand_prep";
-        case thor_mang_control_mode::STAND:
-            switch_mode = "stand";
-        case thor_mang_control_mode::WALK:
-            switch_mode = "walk";
-        case thor_mang_control_mode::STEP:
-            switch_mode = "step";
-        case thor_mang_control_mode::MANIPULATE:
-            switch_mode = "manipulate";
-        case thor_mang_control_mode::DANCE:
-            switch_mode = "dance";
-        case thor_mang_control_mode::WHOLE_BODY:
-            switch_mode = "whole_body";
-        case thor_mang_control_mode::CALIBRATE:
-            switch_mode = "calibrate";
-        case thor_mang_control_mode::SOFT_STOP:
-            switch_mode = "soft_stop";
-        case thor_mang_control_mode::STAND_MANIPULATE:
-            switch_mode = "stand_manipulate";
-        case thor_mang_control_mode::WALK_MANIPULATE:
-            switch_mode = "walk_manipulate";
-        case thor_mang_control_mode::STEP_MANIPULATE:
-            switch_mode = "step_manipulate";
-        //case thor_mang_control_mode::MANIPULATE_GRAVITY = #        - "manipulate_gravity"
-        //case thor_mang_control_mode::MANIPULATE_INVERSE_DYNAMICS =#        - "manipulate_inverse_dynamics"
-        case thor_mang_control_mode::MANIPULATE_LIMITS:
-            switch_mode = "manipulate_limits";
-         //case thor_mang_control_mode:: - "manipulate_limits_stabilized"
-         //case thor_mang_control_mode::  - "manipulate_friction_with_gravity"
-        case thor_mang_control_mode::MANIPULATE_COMPLIANT_IMPEDANCE:
-            switch_mode = "manipulate_compliant_impedance";
-        case thor_mang_control_mode::MANIPULATE_STIFF_IMPEDANCE:
-            switch_mode = "manipulate_stiff_impedance";
-        case thor_mang_control_mode::MANIPULATE_OBSERVER_IMPEDANCE:
-            switch_mode = "manipulate_observer_impedance";
-        case thor_mang_control_mode::DANCE_IMPEDANCE:
-            switch_mode = "dance_impedance";
-        }
+        std::string switch_mode = allowed_control_modes[requested_mode];
+        changeControlMode(switch_mode);
+
+
+//        std::string switch_mode = "";
+//        switch(requested_mode) {
+//        case thor_mang_control_mode::NONE:
+//            switch_mode = "none";
+//        case thor_mang_control_mode::STOP:
+//            switch_mode = "stop";
+//        case thor_mang_control_mode::FREEZE:
+//            switch_mode = "freeze";
+//        case thor_mang_control_mode::STAND_PREP:
+//            switch_mode = "stand_prep";
+//        case thor_mang_control_mode::STAND:
+//            switch_mode = "stand";
+//        case thor_mang_control_mode::WALK:
+//            switch_mode = "walk";
+//        case thor_mang_control_mode::STEP:
+//            switch_mode = "step";
+//        case thor_mang_control_mode::MANIPULATE:
+//            switch_mode = "manipulate";
+//        case thor_mang_control_mode::DANCE:
+//            switch_mode = "dance";
+//        case thor_mang_control_mode::WHOLE_BODY:
+//            switch_mode = "whole_body";
+//        case thor_mang_control_mode::CALIBRATE:
+//            switch_mode = "calibrate";
+//        case thor_mang_control_mode::SOFT_STOP:
+//            switch_mode = "soft_stop";
+//        case thor_mang_control_mode::STAND_MANIPULATE:
+//            switch_mode = "stand_manipulate";
+//        case thor_mang_control_mode::WALK_MANIPULATE:
+//            switch_mode = "walk_manipulate";
+//        case thor_mang_control_mode::STEP_MANIPULATE:
+//            switch_mode = "step_manipulate";
+//        //case thor_mang_control_mode::MANIPULATE_GRAVITY = #        - "manipulate_gravity"
+//        //case thor_mang_control_mode::MANIPULATE_INVERSE_DYNAMICS =#        - "manipulate_inverse_dynamics"
+//        case thor_mang_control_mode::MANIPULATE_LIMITS:
+//            switch_mode = "manipulate_limits";
+//         //case thor_mang_control_mode:: - "manipulate_limits_stabilized"
+//         //case thor_mang_control_mode::  - "manipulate_friction_with_gravity"
+//        case thor_mang_control_mode::MANIPULATE_COMPLIANT_IMPEDANCE:
+//            switch_mode = "manipulate_compliant_impedance";
+//        case thor_mang_control_mode::MANIPULATE_STIFF_IMPEDANCE:
+//            switch_mode = "manipulate_stiff_impedance";
+//        case thor_mang_control_mode::MANIPULATE_OBSERVER_IMPEDANCE:
+//            switch_mode = "manipulate_observer_impedance";
+//        case thor_mang_control_mode::DANCE_IMPEDANCE:
+//            switch_mode = "dance_impedance";
+//        }
 
      }
 
@@ -159,7 +170,13 @@ namespace control_mode_switcher{
          changed_mode_msg.header.stamp = ros::Time::now();
          getStartedAndStoppedControllers();
          //to do load right controllers
+         std::vector <std::string> controllers_to_start;
+         controllers_to_start=default_desired_controllers;
+         for (int i = 0; i< desired_controllers[mode_idx_int].size();i++){
+             controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);
+         }
 
+         switchControllers(controllers_to_start);
 
          changed_mode_msg.bdi_current_behavior = bdi_control_modes[mode_idx_int];
          changed_mode_msg.control_mode = mode_idx_int;
@@ -502,72 +519,72 @@ namespace control_mode_switcher{
         }
     }
 
-    bool ControlModeSwitcher::switchToTrajectoryControllers(){
+//    bool ControlModeSwitcher::switchToTrajectoryControllers(){
 
-        std::vector<std::string> controllers_to_start;
+//        std::vector<std::string> controllers_to_start;
 
-        if (run_on_real_robot) {
-        controllers_to_start.push_back("imu_sensor_controller");
-        controllers_to_start.push_back("force_torque_sensor_controller");
-        }
-        controllers_to_start.push_back("joint_state_controller");
-        controllers_to_start.push_back("left_arm_traj_controller");
-        controllers_to_start.push_back("right_arm_traj_controller");
-        controllers_to_start.push_back("torso_traj_controller");
-        controllers_to_start.push_back("head_traj_controller");
-        controllers_to_start.push_back("waist_lidar_controller");
-        controllers_to_start.push_back("left_leg_traj_controller");
-        controllers_to_start.push_back("right_leg_traj_controller");
+//        if (run_on_real_robot) {
+//        controllers_to_start.push_back("imu_sensor_controller");
+//        controllers_to_start.push_back("force_torque_sensor_controller");
+//        }
+//        controllers_to_start.push_back("joint_state_controller");
+//        controllers_to_start.push_back("left_arm_traj_controller");
+//        controllers_to_start.push_back("right_arm_traj_controller");
+//        controllers_to_start.push_back("torso_traj_controller");
+//        controllers_to_start.push_back("head_traj_controller");
+//        controllers_to_start.push_back("waist_lidar_controller");
+//        controllers_to_start.push_back("left_leg_traj_controller");
+//        controllers_to_start.push_back("right_leg_traj_controller");
 
-        return switchControllers(controllers_to_start);
-    }
+//        return switchControllers(controllers_to_start);
+//    }
 
-    bool ControlModeSwitcher::switchToWalkManipulateControllers(){
-        std::vector<std::string> controllers_to_start;
+//    bool ControlModeSwitcher::switchToWalkManipulateControllers(){
+//        std::vector<std::string> controllers_to_start;
 
-        if (run_on_real_robot) {
-            controllers_to_start.push_back("step_manipulate_controller");
-            controllers_to_start.push_back("imu_sensor_controller");
-            controllers_to_start.push_back("force_torque_sensor_controller");
-        }
-        else{
-            controllers_to_start.push_back("left_leg_traj_controller");
-            controllers_to_start.push_back("right_leg_traj_controller");
-        }
-        controllers_to_start.push_back("joint_state_controller");
-        controllers_to_start.push_back("torso_traj_controller");
-        controllers_to_start.push_back("head_traj_controller");
-        controllers_to_start.push_back("waist_lidar_controller");
-        controllers_to_start.push_back("left_arm_traj_controller");
-        controllers_to_start.push_back("right_arm_traj_controller");
+//        if (run_on_real_robot) {
+//            controllers_to_start.push_back("step_manipulate_controller");
+//            controllers_to_start.push_back("imu_sensor_controller");
+//            controllers_to_start.push_back("force_torque_sensor_controller");
+//        }
+//        else{
+//            controllers_to_start.push_back("left_leg_traj_controller");
+//            controllers_to_start.push_back("right_leg_traj_controller");
+//        }
+//        controllers_to_start.push_back("joint_state_controller");
+//        controllers_to_start.push_back("torso_traj_controller");
+//        controllers_to_start.push_back("head_traj_controller");
+//        controllers_to_start.push_back("waist_lidar_controller");
+//        controllers_to_start.push_back("left_arm_traj_controller");
+//        controllers_to_start.push_back("right_arm_traj_controller");
 
-        return switchControllers(controllers_to_start);
-    }
+//        return switchControllers(controllers_to_start);
+//    }
 
-    bool ControlModeSwitcher::switchToWalkingControllers(){
+//    bool ControlModeSwitcher::switchToWalkingControllers(){
 
-        std::vector<std::string> controllers_to_start;
+//        std::vector<std::string> controllers_to_start;
 
-        if (run_on_real_robot) {
-        controllers_to_start.push_back("step_controller");
-        controllers_to_start.push_back("imu_sensor_controller");
-        controllers_to_start.push_back("force_torque_sensor_controller");
-        }
-        else{
-            controllers_to_start.push_back("left_arm_traj_controller");
-            controllers_to_start.push_back("right_arm_traj_controller");
-            controllers_to_start.push_back("left_leg_traj_controller");
-            controllers_to_start.push_back("right_leg_traj_controller");
-        }
+//        if (run_on_real_robot) {
+//        controllers_to_start.push_back("step_controller");
+//        controllers_to_start.push_back("imu_sensor_controller");
+//        controllers_to_start.push_back("force_torque_sensor_controller");
+//        }
+//        else{
+//            controllers_to_start.push_back("left_arm_traj_controller");
+//            controllers_to_start.push_back("right_arm_traj_controller");
+//            controllers_to_start.push_back("left_leg_traj_controller");
+//            controllers_to_start.push_back("right_leg_traj_controller");
+//        }
 
-        controllers_to_start.push_back("joint_state_controller");
-        controllers_to_start.push_back("torso_traj_controller");
-        controllers_to_start.push_back("head_traj_controller");
-        controllers_to_start.push_back("waist_lidar_controller");
+//        controllers_to_start.push_back("joint_state_controller");
+//        controllers_to_start.push_back("torso_traj_controller");
+//        controllers_to_start.push_back("head_traj_controller");
+//        controllers_to_start.push_back("waist_lidar_controller");
 
 
-        return switchControllers(controllers_to_start);
-    }
+//        return switchControllers(controllers_to_start);
+//    }
 
 
 

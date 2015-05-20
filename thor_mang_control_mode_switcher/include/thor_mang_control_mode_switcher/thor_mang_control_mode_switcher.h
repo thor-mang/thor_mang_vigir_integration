@@ -76,6 +76,8 @@ namespace control_mode_switcher{
      std::vector<std::string> allowed_control_modes;
      std::vector<int> bdi_control_modes;
      std::vector<int> flor_control_modes;
+     std::vector < std::vector<std::string> > desired_controllers;
+     std::vector <std::string> default_desired_controllers;
 
 
     };
