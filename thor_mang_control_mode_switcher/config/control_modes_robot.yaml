@@ -125,7 +125,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: [ "left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            desired_controllers_to_start: ["step_manipulate_controller", "torso_traj_controller", "left_arm_traj_controller", right_arm_traj_controller]
+            desired_controllers_to_start: ["step_manipulate_controller", "torso_traj_controller", "left_arm_traj_controller", "right_arm_traj_controller"]
             transitions:
                 - "stand_manipulate"
         step:
