@@ -26,22 +26,23 @@ namespace control_mode_switcher{
            std::vector <std::string> temp_controllers;
            nh_.getParam(temp_controller_string,temp_controllers);
            desired_controllers.push_back(temp_controllers);
+
+           std::string temp_transitions_string = "/atlas_controller/control_mode_to_controllers/"+allowed_control_modes[i]+"/transitions";
+
+           std::vector <std::string> temp_transitions;
+           nh_.getParam(temp_transitions_string,temp_transitions);
+           allowed_transitions.push_back(temp_transitions);
+
        }
 
 
        nh_.getParam("/atlas_controller/control_mode_to_controllers/all/desired_controllers_to_start",default_desired_controllers);
-
-
-
-
-
-
-
-
+       nh_.getParam("/atlas_controller/control_mode_to_controllers/all/transitions",default_allowed_transitions);
 
        //std::cout << bla[0] <<std::endl;
 
        current_mode_ = "none";
+       current_mode_int_ = 0;  //TODO Check this
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, false);
@@ -150,57 +151,84 @@ namespace control_mode_switcher{
      }
 
      void ControlModeSwitcher::changeControlMode(std::string mode_request){
-          bool switch_successfull = true;
-          flor_control_msgs::FlorControlMode changed_mode_msg;
-          vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
 
-          // get index of requested mode
-          std::vector<std::string>::iterator mode_idx= find (allowed_control_modes.begin (),allowed_control_modes.end (), mode_request );
-          int mode_idx_int;
-          if( mode_idx == allowed_control_modes.end() ) {
-              mode_idx_int = -1;
-              switch_successfull = false;
-              ROS_WARN("[control mode changer] %s is not a known control mode for thor, returning NOT SUCEEDED",mode_request.c_str());
-          }
-          else{
-              mode_idx_int = std::distance( allowed_control_modes.begin(), mode_idx );
-          }
+         // test if the requested transition is allowed
+         bool switch_successfull = true;
+         flor_control_msgs::FlorControlMode changed_mode_msg;
+         vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
+         int mode_idx_int = current_mode_int_;
+         bool transition_ok = false;
 
-          // Publish changed mode
-         changed_mode_msg.header.stamp = ros::Time::now();
-         getStartedAndStoppedControllers();
-         //to do load right controllers
-         std::vector <std::string> controllers_to_start;
-         controllers_to_start=default_desired_controllers;
-         for (int i = 0; i< desired_controllers[mode_idx_int].size();i++){
-             controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);
+         if (current_mode_ == "none"){
+             transition_ok = true;
          }
 
-         switchControllers(controllers_to_start);
+         else {
+             std::vector <std::string> transitions_allowed;
+             transitions_allowed= default_allowed_transitions;
+             for (int i = 0; i< allowed_transitions[current_mode_int_].size();i++){
+                 transitions_allowed.push_back(allowed_transitions[current_mode_int_][i]);
+             }
 
-         changed_mode_msg.bdi_current_behavior = bdi_control_modes[mode_idx_int];
-         changed_mode_msg.control_mode = mode_idx_int;
+             transition_ok = (  find (transitions_allowed.begin (),transitions_allowed.end (), mode_request ) < transitions_allowed.end() );
 
+         }
 
-          // If requested mode in known publish changed mode
-          if (switch_successfull){
-              mode_changed_pub_.publish(changed_mode_msg);
+         if(! transition_ok){
+             switch_successfull = false;
+             ROS_WARN("[control mode changer] Not allowed to switch from %s to %s - returning NOT SUCEEDED",current_mode_.c_str(),mode_request.c_str());
+         }
 
-              // Set Action Goal as succeeded
-              action_result.result.status = action_result.result.MODE_ACCEPTED;
-              action_result.result.requested_control_mode = mode_request;
-              action_result.result.current_control_mode = mode_request;
-              control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
-              current_mode_ = mode_request;
-              ROS_INFO("[control mode changer] Successfully switched to mode %s !", mode_request.c_str());
-          }
-          else{
-              action_result.result.status = action_result.result.MODE_REJECTED;
-              action_result.result.requested_control_mode = mode_request;
-              action_result.result.current_control_mode = mode_request;
-              control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
-              ROS_WARN("[control mode changer] Not possible to switch to requested mode %s", mode_request.c_str());
-          }
+         else{
+
+             // get index of requested mode
+             std::vector<std::string>::iterator mode_idx= find (allowed_control_modes.begin (),allowed_control_modes.end (), mode_request );
+
+             if( mode_idx == allowed_control_modes.end() ) {
+                 mode_idx_int = -1;
+                 switch_successfull = false;
+                 ROS_WARN("[control mode changer] %s is not a known control mode for thor, returning NOT SUCEEDED",mode_request.c_str());
+             }
+             else{
+                 mode_idx_int = std::distance( allowed_control_modes.begin(), mode_idx );
+             }
+
+             // Publish changed mode
+             changed_mode_msg.header.stamp = ros::Time::now();
+             getStartedAndStoppedControllers();
+             //to do load right controllers
+             std::vector <std::string> controllers_to_start;
+             controllers_to_start=default_desired_controllers;
+             for (int i = 0; i< desired_controllers[mode_idx_int].size();i++){
+                 controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);
+             }
+
+             switchControllers(controllers_to_start);
+
+             changed_mode_msg.bdi_current_behavior = bdi_control_modes[mode_idx_int];
+             changed_mode_msg.control_mode = mode_idx_int;
+
+         }
+         // If requested mode in known publish changed mode
+         if (switch_successfull){
+             mode_changed_pub_.publish(changed_mode_msg);
+
+             // Set Action Goal as succeeded
+             action_result.result.status = action_result.result.MODE_ACCEPTED;
+             action_result.result.requested_control_mode = mode_request;
+             action_result.result.current_control_mode = mode_request;
+             control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
+             current_mode_ = mode_request;
+             current_mode_int_ = mode_idx_int;
+             ROS_INFO("[control mode changer] Successfully switched to mode %s !", mode_request.c_str());
+         }
+         else{
+             action_result.result.status = action_result.result.MODE_REJECTED;
+             action_result.result.requested_control_mode = mode_request;
+             action_result.result.current_control_mode = mode_request;
+             control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
+             ROS_WARN("[control mode changer] Not possible to switch to requested mode %s", mode_request.c_str());
+         }
 
 
 
