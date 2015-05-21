@@ -184,6 +184,9 @@ namespace control_mode_switcher{
 
          // If requested mode in known publish changed mode
          if (switch_successfull){
+             if (mode_request == "stand"){
+                 goToStandMode();
+             }
              mode_changed_pub_.publish(changed_mode_msg);
              std_msgs::String mode_name;
              mode_name.data = mode_request;
@@ -206,18 +209,21 @@ namespace control_mode_switcher{
         std::vector<std::string> names_l, names_r;
         std::vector<double> positions_l, positions_r;
 
-        names_l.push_back("l_shoulder_pitch");   positions_l.push_back(0.5920838259292829);
-        names_l.push_back("l_shoulder_roll");    positions_l.push_back(-0.06228113556334662);
-        names_l.push_back("l_ellbow");     positions_l.push_back(-0.736909995463745);
-        names_l.push_back("l_wrist_yaw1");      positions_l.push_back(-0.062043325761155385);
+        names_l.push_back("l_shoulder_pitch");   positions_l.push_back(0.79);
+        names_l.push_back("l_shoulder_roll");    positions_l.push_back(-0.27);
+        names_l.push_back("l_shoulder_yaw");    positions_l.push_back(0.0);
+        names_l.push_back("l_elbow");     positions_l.push_back(-1.57);
+        names_l.push_back("l_wrist_yaw1");      positions_l.push_back(1.55);
         names_l.push_back("l_wrist_roll");       positions_l.push_back(0.0);
-        names_l.push_back("l_wrist_yaw2");          positions_l.push_back(1.1722896780543826);
-        names_r.push_back("r_ankle_pitch");   positions_r.push_back(-0.5921088585400399);
-        names_r.push_back("r_ankle_roll");    positions_r.push_back(0.06164280398904383);
-        names_r.push_back("r_hip_pitch");     positions_r.push_back(0.7369350280745021);
-        names_r.push_back("r_hip_roll");      positions_r.push_back(0.06183054856972112);
-        names_r.push_back("r_hip_yaw");       positions_r.push_back(0.0);
-        names_r.push_back("r_knee");          positions_r.push_back(-1.1723397432758964);
+        names_l.push_back("l_wrist_yaw2");          positions_l.push_back(0.0);
+
+        names_r.push_back("r_shoulder_pitch");   positions_r.push_back(-0.79);
+        names_r.push_back("r_shoulder_roll");    positions_r.push_back(0.27);
+        names_r.push_back("r_shoulder_yaw");    positions_r.push_back(0.0);
+        names_r.push_back("r_elbow");     positions_r.push_back(1.57);
+        names_r.push_back("r_wrist_yaw1");      positions_r.push_back(-1.55);
+        names_r.push_back("r_wrist_roll");       positions_r.push_back(0.0);
+        names_r.push_back("r_wrist_yaw2");          positions_r.push_back(0.0);
 
         control_msgs::FollowJointTrajectoryGoal trajectory_goal_r_;
         control_msgs::FollowJointTrajectoryGoal trajectory_goal_l_;
@@ -267,7 +273,7 @@ namespace control_mode_switcher{
             return;
         }
         else{
-            ROS_WARN("[control_mode_changer] Skipping Leg Motion");
+            ROS_WARN("[control_mode_changer] Skipping Arm Motion while going to stand");
         }
 
     }
