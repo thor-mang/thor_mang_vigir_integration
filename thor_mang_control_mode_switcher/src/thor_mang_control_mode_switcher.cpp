@@ -118,6 +118,11 @@ namespace control_mode_switcher{
 
      bool ControlModeSwitcher::changeControlMode(std::string mode_request){
 
+         if (current_mode_ == mode_request){
+             ROS_INFO("[control mode changer] No switch necessary, robot already in %s !", mode_request.c_str());
+             return true;
+         }
+
          // test if the requested transition is allowed
          bool switch_successfull = true;
          flor_control_msgs::FlorControlMode changed_mode_msg;
