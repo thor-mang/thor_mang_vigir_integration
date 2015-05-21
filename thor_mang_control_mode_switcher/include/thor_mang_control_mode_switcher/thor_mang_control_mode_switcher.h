@@ -40,7 +40,7 @@ namespace control_mode_switcher{
      void executeFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionGoalConstPtr& goal);
      void resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result);
      void ocsModeChangeCb(const flor_control_msgs::FlorControlModeCommand& mode);
-     void changeControlMode(std::string mode_request);
+     bool changeControlMode(std::string mode_request);
      bool switchControllers(std::vector<std::string> controllers_to_start);
      bool switchToTrajectoryControllers();
      bool switchToWalkingControllers();

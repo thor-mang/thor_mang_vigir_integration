@@ -68,7 +68,27 @@ namespace control_mode_switcher{
 
      void ControlModeSwitcher::executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr &goal) {
            std::string mode_request = goal->mode_request;
-           changeControlMode( mode_request);
+           bool switch_successfull = changeControlMode( mode_request);
+
+           vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
+           // If requested mode in known publish changed mode
+           if (switch_successfull){
+
+               // Set Action Goal as succeeded
+               action_result.result.status = action_result.result.MODE_ACCEPTED;
+               action_result.result.requested_control_mode = mode_request;
+               action_result.result.current_control_mode = mode_request;
+               control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
+
+           }
+
+           else{
+               action_result.result.status = action_result.result.MODE_REJECTED;
+               action_result.result.requested_control_mode = mode_request;
+               action_result.result.current_control_mode = mode_request;
+               control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
+
+           }
 
      }
 
@@ -96,12 +116,11 @@ namespace control_mode_switcher{
         changeControlMode(switch_mode);
      }
 
-     void ControlModeSwitcher::changeControlMode(std::string mode_request){
+     bool ControlModeSwitcher::changeControlMode(std::string mode_request){
 
          // test if the requested transition is allowed
          bool switch_successfull = true;
          flor_control_msgs::FlorControlMode changed_mode_msg;
-         vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
          int mode_idx_int = current_mode_int_;
          bool transition_ok = false;
 
@@ -161,28 +180,19 @@ namespace control_mode_switcher{
          // If requested mode in known publish changed mode
          if (switch_successfull){
              mode_changed_pub_.publish(changed_mode_msg);
-
              std_msgs::String mode_name;
              mode_name.data = mode_request;
              mode_name_pub_.publish(mode_name);
-
-             // Set Action Goal as succeeded
-             action_result.result.status = action_result.result.MODE_ACCEPTED;
-             action_result.result.requested_control_mode = mode_request;
-             action_result.result.current_control_mode = mode_request;
-             control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
              current_mode_ = mode_request;
              current_mode_int_ = mode_idx_int;
              ROS_INFO("[control mode changer] Successfully switched to mode %s !", mode_request.c_str());
          }
 
-         else{
-             action_result.result.status = action_result.result.MODE_REJECTED;
-             action_result.result.requested_control_mode = mode_request;
-             action_result.result.current_control_mode = mode_request;
-             control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
+         else{            
              ROS_WARN("[control mode changer] Not possible to switch to requested mode %s", mode_request.c_str());
          }
+
+         return switch_successfull;
 
      }
 
