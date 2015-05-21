@@ -57,6 +57,8 @@ namespace control_mode_switcher{
        started_controllers.push_back("joint_state_controller");
        started_controllers.push_back("joint_state_controller");
        // /step_controller  -> + zweiter typ spater ohne haende /step_manipulate_controller
+
+       changeControlMode(current_mode_);
     }
 
 
