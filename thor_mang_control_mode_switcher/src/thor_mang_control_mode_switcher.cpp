@@ -137,7 +137,7 @@ namespace control_mode_switcher{
              }
              else{
                  mode_idx_int = std::distance( allowed_control_modes.begin(), mode_idx );
-             }
+
 
              // Publish changed mode
              changed_mode_msg.header.stamp = ros::Time::now();
@@ -153,6 +153,8 @@ namespace control_mode_switcher{
 
              changed_mode_msg.bdi_current_behavior = bdi_control_modes[mode_idx_int];
              changed_mode_msg.control_mode = mode_idx_int;
+
+         }
 
          }
 
