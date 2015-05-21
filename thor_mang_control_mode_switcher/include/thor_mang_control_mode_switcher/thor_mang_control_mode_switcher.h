@@ -53,6 +53,7 @@ namespace control_mode_switcher{
     private:
      ros::NodeHandle nh_;
      ros::Publisher mode_changed_pub_;
+     ros::Publisher mode_name_pub_;
 
      ros::Subscriber execute_footstep_sub_;
      ros::Subscriber result_footstep_sub_;

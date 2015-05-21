@@ -39,6 +39,7 @@ namespace control_mode_switcher{
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, true);
+       mode_name_pub_ = nh_.advertise<std_msgs::String>("/flor/controller/mode_name", 10, true);
 
        execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
        result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
@@ -75,7 +76,9 @@ namespace control_mode_switcher{
          changeControlMode(new_mode);
          //}
          //TODO check for empty plans
-     }
+     }         //}
+
+
 
      void ControlModeSwitcher::resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result){
          if ( (current_mode_ == "walk") || (current_mode_ =="walk_manipulate") ){
@@ -154,6 +157,10 @@ namespace control_mode_switcher{
          // If requested mode in known publish changed mode
          if (switch_successfull){
              mode_changed_pub_.publish(changed_mode_msg);
+
+             std_msgs::String mode_name;
+             mode_name.data = mode_request;
+             mode_name_pub_.publish(mode_name);
 
              // Set Action Goal as succeeded
              action_result.result.status = action_result.result.MODE_ACCEPTED;
