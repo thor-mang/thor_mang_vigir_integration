@@ -21,6 +21,7 @@
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanActionGoal.h>
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanActionResult.h>
 #include <flor_control_msgs/FlorControlModeCommand.h>
+#include <std_msgs/Bool.h>
 
 namespace control_mode_switcher{
     typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> TrajectoryActionClient;
@@ -37,9 +38,11 @@ namespace control_mode_switcher{
 
      void trajectoryActiveCB();
      void getStartedAndStoppedControllers();
+     void notifyNewControlMode(std::string new_mode, int new_idx, flor_control_msgs::FlorControlMode msg);
      void executeFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionGoalConstPtr& goal);
      void resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result);
      void ocsModeChangeCb(const flor_control_msgs::FlorControlModeCommand& mode);
+     void allowAllModeTransitionsCb(const std_msgs::Bool & allow);
      bool changeControlMode(std::string mode_request);
      bool switchControllers(std::vector<std::string> controllers_to_start);
      bool switchToTrajectoryControllers();
@@ -54,10 +57,12 @@ namespace control_mode_switcher{
      ros::NodeHandle nh_;
      ros::Publisher mode_changed_pub_;
      ros::Publisher mode_name_pub_;
+     ros::Publisher allow_all_mode_transitions_ack_pub_;
 
      ros::Subscriber execute_footstep_sub_;
      ros::Subscriber result_footstep_sub_;
      ros::Subscriber ocs_mode_switch_sub_;
+     ros::Subscriber allow_all_mode_transitions_sub_;
 
      actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
 
@@ -71,6 +76,7 @@ namespace control_mode_switcher{
 
      bool run_on_real_robot;
      bool stand_complete;
+     bool allow_all_mode_transitions;
 
      std::string current_mode_;
      int current_mode_int_;

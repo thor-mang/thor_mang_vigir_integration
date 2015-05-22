@@ -32,19 +32,17 @@ namespace control_mode_switcher{
        nh_.getParam("/atlas_controller/control_mode_to_controllers/all/desired_controllers_to_start",default_desired_controllers);
        nh_.getParam("/atlas_controller/control_mode_to_controllers/all/transitions",default_allowed_transitions);
 
-       //std::cout << bla[0] <<std::endl;
-
-       current_mode_ = "none";
-       current_mode_int_ = 0;  //TODO Check this
+       allow_all_mode_transitions = false;
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, true);
        mode_name_pub_ = nh_.advertise<std_msgs::String>("/flor/controller/mode_name", 10, true);
+       allow_all_mode_transitions_ack_pub_ = nh_.advertise<std_msgs::Bool>("/mode_controllers/control_mode_controller/allow_all_mode_transitions_acknowledgement", 10, false);
 
        execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
        result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
        ocs_mode_switch_sub_ = nh_.subscribe("/flor/controller/mode_command", 10, &ControlModeSwitcher::ocsModeChangeCb, this);
-
+       allow_all_mode_transitions_sub_ = nh_.subscribe("/mode_controllers/control_mode_controller/allow_all_mode_transitions", 10, &ControlModeSwitcher::allowAllModeTransitionsCb, this);
 
        switch_controllers_client_ = nh_.serviceClient<controller_manager_msgs::SwitchController>("/thor_mang/controller_manager/switch_controller");
        list_controllers_client_ = nh_.serviceClient<controller_manager_msgs::ListControllers>("/thor_mang/controller_manager/list_controllers");
@@ -54,11 +52,16 @@ namespace control_mode_switcher{
        trajectory_client_right_ = new  TrajectoryActionClient("/thor_mang/right_arm_traj_controller/follow_joint_trajectory", true);
 
        getStartedAndStoppedControllers();
-       started_controllers.push_back("joint_state_controller");
-       started_controllers.push_back("joint_state_controller");
-       // /step_controller  -> + zweiter typ spater ohne haende /step_manipulate_controller
+//       started_controllers.push_back("joint_state_controller");
+//       started_controllers.push_back("joint_state_controller");
+//       // /step_controller  -> + zweiter typ spater ohne haende /step_manipulate_controller
 
-       changeControlMode(current_mode_);
+       flor_control_msgs::FlorControlMode changed_mode_msg;
+       changed_mode_msg.header.stamp = ros::Time::now();
+       changed_mode_msg.bdi_current_behavior = 1;
+       changed_mode_msg.control_mode = 0;
+
+       notifyNewControlMode("none", 0, changed_mode_msg);
     }
 
 
@@ -116,7 +119,20 @@ namespace control_mode_switcher{
         changeControlMode(switch_mode);
      }
 
+     void ControlModeSwitcher::allowAllModeTransitionsCb(const std_msgs::Bool & allow){
+
+         allow_all_mode_transitions = allow.data;
+
+         std_msgs::Bool ack;
+         ack.data = allow_all_mode_transitions;
+         allow_all_mode_transitions_ack_pub_.publish(ack);
+
+     }
+
      bool ControlModeSwitcher::changeControlMode(std::string mode_request){
+
+         // Ignore case
+         std::transform(mode_request.begin(), mode_request.end(), mode_request.begin(), ::tolower);
 
          if (current_mode_ == mode_request){
              ROS_INFO("[control mode changer] No switch necessary, robot already in %s !", mode_request.c_str());
@@ -129,10 +145,9 @@ namespace control_mode_switcher{
          int mode_idx_int = current_mode_int_;
          bool transition_ok = false;
 
-         if (current_mode_ == "none"){
+         if (allow_all_mode_transitions) {
              transition_ok = true;
          }
-
          else {
              std::vector <std::string> transitions_allowed;
              transitions_allowed= default_allowed_transitions;
@@ -149,6 +164,7 @@ namespace control_mode_switcher{
              ROS_WARN("[control mode changer] Not allowed to switch from %s to %s - returning NOT SUCEEDED",current_mode_.c_str(),mode_request.c_str());
          }
 
+
          else{
 
              // get index of requested mode
@@ -163,22 +179,40 @@ namespace control_mode_switcher{
                  mode_idx_int = std::distance( allowed_control_modes.begin(), mode_idx );
 
 
-             // Publish changed mode
-             changed_mode_msg.header.stamp = ros::Time::now();
-             getStartedAndStoppedControllers();
-             //to do load right controllers
-             std::vector <std::string> controllers_to_start;
-             controllers_to_start=default_desired_controllers;
-             for (int i = 0; i< desired_controllers[mode_idx_int].size();i++){
-                 controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);
+                 // Publish changed mode
+                 changed_mode_msg.header.stamp = ros::Time::now();
+
+                 if (mode_request != "none"){
+                     getStartedAndStoppedControllers();
+
+                     //to do load right controllers
+                     std::vector <std::string> controllers_to_start;
+                     controllers_to_start=default_desired_controllers;
+
+                     for (int i = 0; i< desired_controllers[mode_idx_int].size();i++){
+                         controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);
+                     }
+
+                     if (mode_request == "soft_stop") {
+
+                         if (current_mode_ == "walk") {
+                             controllers_to_start.push_back("step_controller");
+                         }
+
+                         else if (current_mode_ == "walk_manipulate") {
+                             controllers_to_start.push_back("step_manipulate_controller");
+                         }
+
+                     }
+
+                     switchControllers(controllers_to_start);
+
+                 }
+
+                 changed_mode_msg.bdi_current_behavior = bdi_control_modes[mode_idx_int];
+                 changed_mode_msg.control_mode = mode_idx_int;
+
              }
-
-             switchControllers(controllers_to_start);
-
-             changed_mode_msg.bdi_current_behavior = bdi_control_modes[mode_idx_int];
-             changed_mode_msg.control_mode = mode_idx_int;
-
-         }
 
          }
 
@@ -187,21 +221,31 @@ namespace control_mode_switcher{
              if (mode_request == "stand"){
                  goToStandMode();
              }
-             mode_changed_pub_.publish(changed_mode_msg);
-             std_msgs::String mode_name;
-             mode_name.data = mode_request;
-             mode_name_pub_.publish(mode_name);
-             current_mode_ = mode_request;
-             current_mode_int_ = mode_idx_int;
-             ROS_INFO("[control mode changer] Successfully switched to mode %s !", mode_request.c_str());
+             if (mode_request == "stand_prep"){
+                 // TODO call something that puts robot in calibaration pose stuff
+             }
+
+             notifyNewControlMode(mode_request, mode_idx_int, changed_mode_msg);
+
+
          }
 
-         else{            
+         else{
              ROS_WARN("[control mode changer] Not possible to switch to requested mode %s", mode_request.c_str());
          }
 
          return switch_successfull;
 
+     }
+
+     void ControlModeSwitcher::notifyNewControlMode(std::string new_mode, int new_idx, flor_control_msgs::FlorControlMode msg){
+         mode_changed_pub_.publish(msg);
+         std_msgs::String mode_name;
+         mode_name.data = new_mode;
+         mode_name_pub_.publish(mode_name);
+         current_mode_ = new_mode;
+         current_mode_int_ = new_idx;
+         ROS_INFO("[control mode changer] Successfully switched to mode %s !", new_mode.c_str());
      }
 
     void ControlModeSwitcher::goToStandMode(){
@@ -233,7 +277,7 @@ namespace control_mode_switcher{
             ROS_WARN("[control_mode_changer] Time out while waititing for right_leg_traj_controller");
         if (trajectory_client_left_->isServerConnected() && trajectory_client_right_->isServerConnected() )
         {
-            // Goal for left leg
+            // Goal for left arm
             trajectory_msgs::JointTrajectory joint_trajectory_l;
             joint_trajectory_l.joint_names = names_l;
 
@@ -244,7 +288,7 @@ namespace control_mode_switcher{
 
             trajectory_goal_l_.trajectory = joint_trajectory_l;
 
-            //Goal for right leg
+            //Goal for right arm
             trajectory_msgs::JointTrajectory joint_trajectory_r;
             joint_trajectory_r.joint_names = names_r;
 
@@ -309,18 +353,6 @@ namespace control_mode_switcher{
 
     bool ControlModeSwitcher::switchControllers(std::vector<std::string> desired_controllers_to_start){
 
-//        for (int i = 0;i < desired_controllers_to_start.size();i++){
-//        std::cout << "desired to start:" << desired_controllers_to_start[i] << std::endl;
-//        }
-
-//        for (int i = 0;i < started_controllers.size();i++){
-//        std::cout << "running:" << started_controllers[i] << std::endl;
-//        }
-
-//        for (int i = 0;i < stopped_controllers.size();i++){
-//        std::cout << "not running:" << stopped_controllers[i] << std::endl;
-//        }
-
         std::vector<std::string> controllers_to_stop;
         std::vector<std::string> controllers_to_start;
 
@@ -352,12 +384,6 @@ namespace control_mode_switcher{
             }
         }
 
-//        for (int i = 0;i < controllers_to_start.size();i++){
-//        std::cout << "starting:" << controllers_to_start[i] << std::endl;
-//        }
-//        for (int i = 0;i < controllers_to_stop.size();i++){
-//        std::cout << "stopping:" << controllers_to_stop[i] << std::endl;
-//        }
         if ((controllers_to_start.size() > 0) || (controllers_to_stop.size() > 0)) {
         controller_manager_msgs::SwitchController srv;
         srv.request.start_controllers = controllers_to_start;
@@ -374,72 +400,7 @@ namespace control_mode_switcher{
         }
     }
 
-//    bool ControlModeSwitcher::switchToTrajectoryControllers(){
 
-//        std::vector<std::string> controllers_to_start;
-
-//        if (run_on_real_robot) {
-//        controllers_to_start.push_back("imu_sensor_controller");
-//        controllers_to_start.push_back("force_torque_sensor_controller");
-//        }
-//        controllers_to_start.push_back("joint_state_controller");
-//        controllers_to_start.push_back("left_arm_traj_controller");
-//        controllers_to_start.push_back("right_arm_traj_controller");
-//        controllers_to_start.push_back("torso_traj_controller");
-//        controllers_to_start.push_back("head_traj_controller");
-//        controllers_to_start.push_back("waist_lidar_controller");
-//        controllers_to_start.push_back("left_leg_traj_controller");
-//        controllers_to_start.push_back("right_leg_traj_controller");
-
-//        return switchControllers(controllers_to_start);
-//    }
-
-//    bool ControlModeSwitcher::switchToWalkManipulateControllers(){
-//        std::vector<std::string> controllers_to_start;
-
-//        if (run_on_real_robot) {
-//            controllers_to_start.push_back("step_manipulate_controller");
-//            controllers_to_start.push_back("imu_sensor_controller");
-//            controllers_to_start.push_back("force_torque_sensor_controller");
-//        }
-//        else{
-//            controllers_to_start.push_back("left_leg_traj_controller");
-//            controllers_to_start.push_back("right_leg_traj_controller");
-//        }
-//        controllers_to_start.push_back("joint_state_controller");
-//        controllers_to_start.push_back("torso_traj_controller");
-//        controllers_to_start.push_back("head_traj_controller");
-//        controllers_to_start.push_back("waist_lidar_controller");
-//        controllers_to_start.push_back("left_arm_traj_controller");
-//        controllers_to_start.push_back("right_arm_traj_controller");
-
-//        return switchControllers(controllers_to_start);
-//    }
-
-//    bool ControlModeSwitcher::switchToWalkingControllers(){
-
-//        std::vector<std::string> controllers_to_start;
-
-//        if (run_on_real_robot) {
-//        controllers_to_start.push_back("step_controller");
-//        controllers_to_start.push_back("imu_sensor_controller");
-//        controllers_to_start.push_back("force_torque_sensor_controller");
-//        }
-//        else{
-//            controllers_to_start.push_back("left_arm_traj_controller");
-//            controllers_to_start.push_back("right_arm_traj_controller");
-//            controllers_to_start.push_back("left_leg_traj_controller");
-//            controllers_to_start.push_back("right_leg_traj_controller");
-//        }
-
-//        controllers_to_start.push_back("joint_state_controller");
-//        controllers_to_start.push_back("torso_traj_controller");
-//        controllers_to_start.push_back("head_traj_controller");
-//        controllers_to_start.push_back("waist_lidar_controller");
-
-
-//        return switchControllers(controllers_to_start);
-//    }
 
 
 

@@ -94,7 +94,6 @@ atlas_controller:
                 - "walk"
                 - "step"
                 - "manipulate"
-                - "stand_manipulate"
                 - "manipulate_compliant_impedance"
                 - "manipulate_stiff_impedance"
         stand_manipulate:
