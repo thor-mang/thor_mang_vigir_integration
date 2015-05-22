@@ -4,3 +4,23 @@ topics_to_record:
 - /vigir/global_footstep_planner/step_plan_request/goal
 - /vigir/global_footstep_planner/step_plan_request/feedback
 - /vigir/global_footstep_planner/step_plan_request/result
+- /vigir_move_group/cancel
+- /vigir_move_group/feedback
+- /vigir_move_group/goal
+- /vigir_move_group/result
+- /vigir_move_group/status
+- /move_group/display_planned_path
+- /mode_controllers/control_mode_controller/change_control_mode/goal
+- /robot_controllers/footstep_controller/execute_step_plan/goal
+- /thor_mang/head_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/left_arm_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/left_hand_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/left_leg_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/right_arm_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/right_hand_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/right_leg_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/step_controller/execute_step_plan/goal
+- /thor_mang/step_manipulate_controller/execute_step_plan/goal
+- /thor_mang/torso_traj_controller/follow_joint_trajectory/goal
+- /thor_mang/waist_lidar_controller/follow_joint_trajectory/goal
+
