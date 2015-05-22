@@ -127,6 +127,8 @@ namespace control_mode_switcher{
          ack.data = allow_all_mode_transitions;
          allow_all_mode_transitions_ack_pub_.publish(ack);
 
+         ROS_INFO("[control_mode_switcher] Allowing all transitions between modes");
+
      }
 
      bool ControlModeSwitcher::changeControlMode(std::string mode_request){
@@ -135,7 +137,7 @@ namespace control_mode_switcher{
          std::transform(mode_request.begin(), mode_request.end(), mode_request.begin(), ::tolower);
 
          if (current_mode_ == mode_request){
-             ROS_INFO("[control mode changer] No switch necessary, robot already in %s !", mode_request.c_str());
+             ROS_INFO("[control_mode_switcher] No switch necessary, robot already in %s !", mode_request.c_str());
              return true;
          }
 
@@ -145,23 +147,26 @@ namespace control_mode_switcher{
          int mode_idx_int = current_mode_int_;
          bool transition_ok = false;
 
+
+         std::vector <std::string> transitions_allowed;
+         transitions_allowed= default_allowed_transitions;
+         for (int i = 0; i< allowed_transitions[current_mode_int_].size();i++){
+             transitions_allowed.push_back(allowed_transitions[current_mode_int_][i]);
+         }
+
+         transition_ok = (  find (transitions_allowed.begin (),transitions_allowed.end (), mode_request ) < transitions_allowed.end() );
+
          if (allow_all_mode_transitions) {
+             if(!transition_ok){
+                 ROS_WARN("[control_mode_switcher] Normally not allowed to switch from %s to %s - but currently manually enabled",current_mode_.c_str(),mode_request.c_str());
+             }
              transition_ok = true;
          }
-         else {
-             std::vector <std::string> transitions_allowed;
-             transitions_allowed= default_allowed_transitions;
-             for (int i = 0; i< allowed_transitions[current_mode_int_].size();i++){
-                 transitions_allowed.push_back(allowed_transitions[current_mode_int_][i]);
-             }
 
-             transition_ok = (  find (transitions_allowed.begin (),transitions_allowed.end (), mode_request ) < transitions_allowed.end() );
-
-         }
 
          if(! transition_ok){
              switch_successfull = false;
-             ROS_WARN("[control mode changer] Not allowed to switch from %s to %s - returning NOT SUCEEDED",current_mode_.c_str(),mode_request.c_str());
+             ROS_WARN("[control_mode_switcher] Not allowed to switch from %s to %s - returning NOT SUCEEDED",current_mode_.c_str(),mode_request.c_str());
          }
 
 
@@ -231,7 +236,7 @@ namespace control_mode_switcher{
          }
 
          else{
-             ROS_WARN("[control mode changer] Not possible to switch to requested mode %s", mode_request.c_str());
+             ROS_WARN("[control_mode_switcher] Not possible to switch to requested mode %s", mode_request.c_str());
          }
 
          return switch_successfull;
@@ -245,7 +250,7 @@ namespace control_mode_switcher{
          mode_name_pub_.publish(mode_name);
          current_mode_ = new_mode;
          current_mode_int_ = new_idx;
-         ROS_INFO("[control mode changer] Successfully switched to mode %s !", new_mode.c_str());
+         ROS_INFO("[control_mode_switcher] Successfully switched to mode %s !", new_mode.c_str());
      }
 
     void ControlModeSwitcher::goToStandMode(){
@@ -272,9 +277,9 @@ namespace control_mode_switcher{
         control_msgs::FollowJointTrajectoryGoal trajectory_goal_r_;
         control_msgs::FollowJointTrajectoryGoal trajectory_goal_l_;
         if (!trajectory_client_left_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_changer] Time out while waititing for left_leg_traj_controller");
+            ROS_WARN("[control_mode_switcher] Time out while waititing for left_leg_traj_controller");
         if (!trajectory_client_right_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_changer] Time out while waititing for right_leg_traj_controller");
+            ROS_WARN("[control_mode_switcher] Time out while waititing for right_leg_traj_controller");
         if (trajectory_client_left_->isServerConnected() && trajectory_client_right_->isServerConnected() )
         {
             // Goal for left arm
@@ -317,7 +322,7 @@ namespace control_mode_switcher{
             return;
         }
         else{
-            ROS_WARN("[control_mode_changer] Skipping Arm Motion while going to stand");
+            ROS_WARN("[control_mode_switcher] Skipping Arm Motion while going to stand");
         }
 
     }
@@ -395,7 +400,7 @@ namespace control_mode_switcher{
         return srv.response.ok;
         }
         else{
-            ROS_DEBUG("[control mode changer] No changes made, all controllers already running");
+            ROS_DEBUG("[control_mode_switcher] No changes made, all controllers already running");
             return true;
         }
     }
