@@ -88,7 +88,7 @@ namespace control_mode_switcher{
            else{
                action_result.result.status = action_result.result.MODE_REJECTED;
                action_result.result.requested_control_mode = mode_request;
-               action_result.result.current_control_mode = mode_request;
+               action_result.result.current_control_mode = current_mode_;
                control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
 
            }
@@ -277,9 +277,9 @@ namespace control_mode_switcher{
         control_msgs::FollowJointTrajectoryGoal trajectory_goal_r_;
         control_msgs::FollowJointTrajectoryGoal trajectory_goal_l_;
         if (!trajectory_client_left_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_switcher] Time out while waititing for left_leg_traj_controller");
+            ROS_WARN("[control_mode_switcher] Time out while waititing for left_arm_traj_controller");
         if (!trajectory_client_right_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_switcher] Time out while waititing for right_leg_traj_controller");
+            ROS_WARN("[control_mode_switcher] Time out while waititing for right_arm_traj_controller");
         if (trajectory_client_left_->isServerConnected() && trajectory_client_right_->isServerConnected() )
         {
             // Goal for left arm
