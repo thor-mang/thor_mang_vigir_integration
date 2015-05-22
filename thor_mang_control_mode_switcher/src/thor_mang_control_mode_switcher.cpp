@@ -38,6 +38,7 @@ namespace control_mode_switcher{
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, true);
        mode_name_pub_ = nh_.advertise<std_msgs::String>("/flor/controller/mode_name", 10, true);
        allow_all_mode_transitions_ack_pub_ = nh_.advertise<std_msgs::Bool>("/mode_controllers/control_mode_controller/allow_all_mode_transitions_acknowledgement", 10, false);
+       stand_prep_calibration_pub_ = nh_.advertise<std_msgs::Empty>("/thor_mang/start_calibration", 10, false);
 
        execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
        result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
@@ -227,7 +228,7 @@ namespace control_mode_switcher{
                  goToStandMode();
              }
              if (mode_request == "stand_prep"){
-                 // TODO call something that puts robot in calibaration pose stuff
+                 stand_prep_calibration_pub_.publish(std_msgs::Empty());
              }
 
              notifyNewControlMode(mode_request, mode_idx_int, changed_mode_msg);

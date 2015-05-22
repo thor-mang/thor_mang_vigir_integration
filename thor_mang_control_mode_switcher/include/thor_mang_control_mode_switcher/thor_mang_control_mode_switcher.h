@@ -22,6 +22,7 @@
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanActionResult.h>
 #include <flor_control_msgs/FlorControlModeCommand.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Empty.h>
 
 namespace control_mode_switcher{
     typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> TrajectoryActionClient;
@@ -58,6 +59,7 @@ namespace control_mode_switcher{
      ros::Publisher mode_changed_pub_;
      ros::Publisher mode_name_pub_;
      ros::Publisher allow_all_mode_transitions_ack_pub_;
+     ros::Publisher stand_prep_calibration_pub_;
 
      ros::Subscriber execute_footstep_sub_;
      ros::Subscriber result_footstep_sub_;
