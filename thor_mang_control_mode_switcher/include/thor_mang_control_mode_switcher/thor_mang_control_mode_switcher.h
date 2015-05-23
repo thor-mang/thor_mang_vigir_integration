@@ -20,12 +20,15 @@
 #include <controller_manager_msgs/ControllerState.h>
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanActionGoal.h>
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanActionResult.h>
+#include <vigir_footstep_planning_msgs/ExecuteStepPlanAction.h>
+#include <vigir_footstep_planning_msgs/ExecuteStepPlanGoal.h>
 #include <flor_control_msgs/FlorControlModeCommand.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Empty.h>
 
 namespace control_mode_switcher{
     typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> TrajectoryActionClient;
+typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepPlanAction> StepPlanActionClient;
 
     class ControlModeSwitcher {
 
@@ -36,8 +39,9 @@ namespace control_mode_switcher{
     protected:
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
      void goToStandMode();
+     void goToSoftStop();
 
-     void trajectoryActiveCB();
+
      void getStartedAndStoppedControllers();
      void notifyNewControlMode(std::string new_mode, int new_idx, flor_control_msgs::FlorControlMode msg);
      void executeFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionGoalConstPtr& goal);
@@ -49,9 +53,15 @@ namespace control_mode_switcher{
      bool switchToTrajectoryControllers();
      bool switchToWalkingControllers();
      bool switchToWalkManipulateControllers();
+
+     void trajectoryActiveCB();
      void trajectoryFeedbackCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr& feedback);
      void trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
                                                        const control_msgs::FollowJointTrajectoryResultConstPtr& result);
+     void stepPlanActiveCB();
+     void stepPlanFeedbackCB(const vigir_footstep_planning_msgs::ExecuteStepPlanFeedbackConstPtr& feedback);
+     void stepPlanDoneCb(const actionlib::SimpleClientGoalState& state,
+                                                       const vigir_footstep_planning_msgs::ExecuteStepPlanResultConstPtr& result);
 
 
     private:
@@ -72,6 +82,7 @@ namespace control_mode_switcher{
      ros::ServiceClient list_controllers_client_;
      TrajectoryActionClient* trajectory_client_left_;
      TrajectoryActionClient* trajectory_client_right_;
+     StepPlanActionClient* stepplan_client_;
 
      std::vector<std::string> started_controllers;
      std::vector<std::string> stopped_controllers;
@@ -93,52 +104,5 @@ namespace control_mode_switcher{
 
     };
 }
-
-namespace thor_mang_bdi_control_mode{
-
-    const unsigned char NONE = 0;
-    const unsigned char FREEZE = 1;
-    const unsigned char STAND_PREP = 2;
-    const unsigned char STAND = 3;
-    const unsigned char STAND_MANIPULATE = 3;
-    const unsigned char IMPEDANCE_STIFF = 6;
-    const unsigned char	IMPEDANCE_COMPLIANT = 6;
-    const unsigned char	IMPEDANCE_OBSERVER = 6;
-    const unsigned char WALK = 4;
-    const unsigned char STEP = 5;
-    const unsigned char MANIPULATE = 6;
-    const unsigned char USER = 7;
-    const unsigned char CALIBRATE = 8;
-    const unsigned char SOFT_STOP = 9;
-}
-
-namespace thor_mang_control_mode{
-const unsigned char NONE = 0;
-const unsigned char STOP = 1;
-const unsigned char FREEZE = 2;
-const unsigned char STAND_PREP = 3;
-const unsigned char STAND = 4;
-const unsigned char WALK = 5;
-const unsigned char STEP = 6;
-const unsigned char MANIPULATE = 7;
-const unsigned char WHOLE_BODY = 8;
-const unsigned char DANCE = 9;
-const unsigned char CALIBRATE = 10;
-const unsigned char SOFT_STOP = 11;
-const unsigned char STAND_MANIPULATE = 12;
-const unsigned char WALK_MANIPULATE = 13;
-const unsigned char STEP_MANIPULATE = 14;
-//const unsigned char MANIPULATE_GRAVITY = #        - "manipulate_gravity"
-//const unsigned char MANIPULATE_INVERSE_DYNAMICS =#        - "manipulate_inverse_dynamics"
-const unsigned char MANIPULATE_LIMITS = 15 ; //- "manipulate_limits"
- //const unsigned char#        - "manipulate_limits_stabilized"
- //const unsigned char#        - "manipulate_friction_with_gravity"
-const unsigned char MANIPULATE_COMPLIANT_IMPEDANCE = 16 ; //"manipulate_compliant_impedance"
-const unsigned char MANIPULATE_STIFF_IMPEDANCE = 17 ; //"manipulate_stiff_impedance"
-const unsigned char MANIPULATE_OBSERVER_IMPEDANCE = 18 ; // "manipulate_observer_impedance"
-const unsigned char DANCE_IMPEDANCE = 19 ; //"dance_impedance"
-
-}
-
 
 #endif // THOR_MANG_CONTROL_MODE_SWITCHER_H

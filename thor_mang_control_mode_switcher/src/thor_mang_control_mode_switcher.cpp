@@ -52,6 +52,8 @@ namespace control_mode_switcher{
        trajectory_client_left_ = new  TrajectoryActionClient("/thor_mang/left_arm_traj_controller/follow_joint_trajectory", true);
        trajectory_client_right_ = new  TrajectoryActionClient("/thor_mang/right_arm_traj_controller/follow_joint_trajectory", true);
 
+       stepplan_client_= new  StepPlanActionClient("/thor_mang/step_controller/execute_step_plan", true);
+
        getStartedAndStoppedControllers();
 //       started_controllers.push_back("joint_state_controller");
 //       started_controllers.push_back("joint_state_controller");
@@ -227,6 +229,11 @@ namespace control_mode_switcher{
              if (mode_request == "stand"){
                  goToStandMode();
              }
+
+             if (mode_request == "soft_stop"){
+                 goToSoftStop();
+             }
+
              if (mode_request == "stand_prep"){
                  stand_prep_calibration_pub_.publish(std_msgs::Empty());
              }
@@ -252,6 +259,23 @@ namespace control_mode_switcher{
          current_mode_ = new_mode;
          current_mode_int_ = new_idx;
          ROS_INFO("[control_mode_switcher] Successfully switched to mode %s !", new_mode.c_str());
+     }
+
+     void ControlModeSwitcher::goToSoftStop(){
+         if (!stepplan_client_ ->waitForServer(ros::Duration(5.0)))
+             ROS_WARN("[control_mode_switcher] Time out while waititing for step plan server");
+         if (stepplan_client_->isServerConnected())
+         {
+             // Goal for stepplan
+             vigir_footstep_planning_msgs::ExecuteStepPlanGoal stepplan_goal;
+
+             //Send goals to controllers
+             stepplan_client_->sendGoal(stepplan_goal, boost::bind(&ControlModeSwitcher::stepPlanDoneCb, this, _1, _2),
+                                          boost::bind(&ControlModeSwitcher::stepPlanActiveCB, this),
+                                          boost::bind(&ControlModeSwitcher::stepPlanFeedbackCB, this, _1));
+             return;
+         }
+
      }
 
     void ControlModeSwitcher::goToStandMode(){
@@ -328,6 +352,8 @@ namespace control_mode_switcher{
 
     }
 
+
+
     void ControlModeSwitcher::trajectoryActiveCB()
     {    }
 
@@ -337,6 +363,20 @@ namespace control_mode_switcher{
     void ControlModeSwitcher::trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
                                                const control_msgs::FollowJointTrajectoryResultConstPtr& result)
     {        stand_complete = true; }
+
+    void ControlModeSwitcher::stepPlanActiveCB(){
+
+    }
+
+    void ControlModeSwitcher::stepPlanFeedbackCB(const vigir_footstep_planning_msgs::ExecuteStepPlanFeedbackConstPtr& feedback){
+
+    }
+
+    void ControlModeSwitcher::stepPlanDoneCb(const actionlib::SimpleClientGoalState& state,
+                                                      const vigir_footstep_planning_msgs::ExecuteStepPlanResultConstPtr& result){
+
+    }
+
 
 
     void ControlModeSwitcher::getStartedAndStoppedControllers(){
