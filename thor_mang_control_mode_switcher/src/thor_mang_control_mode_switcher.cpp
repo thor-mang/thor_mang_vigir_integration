@@ -211,7 +211,7 @@ namespace control_mode_switcher{
 
                      }
 
-                     switchControllers(controllers_to_start);
+                     switch_successfull = switchControllers(controllers_to_start);
 
                  }
 
