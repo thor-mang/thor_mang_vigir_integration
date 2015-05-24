@@ -100,8 +100,18 @@ namespace control_mode_switcher{
 
         }
 
+        ROS_INFO("[control_mode_switcher] starting to wait for feedback of trajectory control action");
+
+        //TODO testing
+        ros::Duration max_wait_time(2*duration);
+        ros::Time begin = ros::Time::now();
         ros::Rate rate(ros::Duration(0.1));
         while (completion_counter>0){
+            if (ros::Time::now() - begin > max_wait_time) {
+                ROS_WARN("[control_mode_switcher] Timeout in send trajectory");
+                completion_counter = 0;
+                break;
+            }
             rate.sleep();
         }
 
