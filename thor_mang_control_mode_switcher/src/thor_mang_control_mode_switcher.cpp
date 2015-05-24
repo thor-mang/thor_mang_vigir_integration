@@ -33,6 +33,7 @@ namespace control_mode_switcher{
        nh_.getParam("/atlas_controller/control_mode_to_controllers/all/transitions",default_allowed_transitions);
 
        allow_all_mode_transitions = false;
+       accept_new_mode_change = true;
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, true);
@@ -54,6 +55,10 @@ namespace control_mode_switcher{
 
        stepplan_client_= new  StepPlanActionClient("/thor_mang/step_controller/execute_step_plan", true);
 
+       std_msgs::Bool ack;
+       ack.data = false;
+       allow_all_mode_transitions_ack_pub_.publish(ack);
+
        getStartedAndStoppedControllers();
 //       started_controllers.push_back("joint_state_controller");
 //       started_controllers.push_back("joint_state_controller");
@@ -65,6 +70,8 @@ namespace control_mode_switcher{
        changed_mode_msg.control_mode = 0;
 
        notifyNewControlMode("none", 0, changed_mode_msg);
+
+
     }
 
 
@@ -73,28 +80,37 @@ namespace control_mode_switcher{
 
 
      void ControlModeSwitcher::executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr &goal) {
-           std::string mode_request = goal->mode_request;
-           bool switch_successfull = changeControlMode( mode_request);
+           ROS_INFO("[control_mode_switcher] processing new mode change request for %s ... ", goal->mode_request.c_str());
+        // if (accept_new_mode_change) {
+           //  ROS_INFO("[control_mode_switcher] accepted new mode change request for %s", goal->mode_request.c_str());
+             accept_new_mode_change =false;
+             std::string mode_request = goal->mode_request;
+             bool switch_successfull = changeControlMode( mode_request);
 
-           vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
-           // If requested mode in known publish changed mode
-           if (switch_successfull){
+             vigir_humanoid_control_msgs::ChangeControlModeResult action_result;
+             // If requested mode in known publish changed mode
+             if (switch_successfull){
 
-               // Set Action Goal as succeeded
-               action_result.result.status = action_result.result.MODE_ACCEPTED;
-               action_result.result.requested_control_mode = mode_request;
-               action_result.result.current_control_mode = mode_request;
-               control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
+                 // Set Action Goal as succeeded
+                 action_result.result.status = action_result.result.MODE_ACCEPTED;
+                 action_result.result.requested_control_mode = mode_request;
+                 action_result.result.current_control_mode = mode_request;
+                 control_mode_action_server.setSucceeded(action_result,"Fake succeeded from control mode switcher");
 
-           }
+             }
 
-           else{
-               action_result.result.status = action_result.result.MODE_REJECTED;
-               action_result.result.requested_control_mode = mode_request;
-               action_result.result.current_control_mode = current_mode_;
-               control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
+             else{
+                 action_result.result.status = action_result.result.MODE_REJECTED;
+                 action_result.result.requested_control_mode = mode_request;
+                 action_result.result.current_control_mode = current_mode_;
+                 control_mode_action_server.setAborted(action_result,"Fake succeeded from control mode switcher");
 
-           }
+             }
+
+             accept_new_mode_change =true;
+         //    ROS_INFO("[control_mode_switcher] ready for new mode after changing to %s", goal->mode_request.c_str());
+       //  }
+
 
      }
 
@@ -234,6 +250,15 @@ namespace control_mode_switcher{
                  goToSoftStop();
              }
 
+             if (mode_request == "shutdown"){
+                 goToShutdownMode1();
+                 goToShutdownMode2();
+                 goToShutdownMode3();
+                 goToShutdownMode4();
+                 goToShutdownMode5();
+             }
+
+
              if (mode_request == "stand_prep"){
                  stand_prep_calibration_pub_.publish(std_msgs::Empty());
              }
@@ -278,77 +303,92 @@ namespace control_mode_switcher{
 
      }
 
+     void ControlModeSwitcher::goToShutdownMode1(){
+
+         std::map<TrajectoryController , std::vector<double> > joint_config;
+
+         double joints_left_arm[] = {1.2, -0.27, 0.0, -2.0, 1.55, 0.0, 0.0};
+         double joints_right_arm[] = {-1.2, 0.27, 0.0, 2.0, -1.55, 0.0, 0.0};
+
+         joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_left_arm,7);
+         joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_right_arm,7);
+         trajectory_control_helper.goToJointConfiguration(joint_config, 3.0 );
+     }
+
+     void ControlModeSwitcher::goToShutdownMode2(){
+
+         std::map<TrajectoryController , std::vector<double> > joint_config;
+
+         double joints_left_leg[] = {1.42, -0.17, 3.02, -1.57, -0.15, 0.0};
+         double joints_right_leg[] = {-1.42, 0.17, -3.02, 1.57, 0.15, 0.0};
+
+         joint_config[LEFT_LEG] = trajectory_control_helper.makeVector(joints_left_leg, 6);
+         joint_config[RIGHT_LEG] = trajectory_control_helper.makeVector(joints_right_leg, 6);
+         trajectory_control_helper.goToJointConfiguration(joint_config, 6.0 );
+
+     }
+
+     void ControlModeSwitcher::goToShutdownMode3(){
+
+         std::map<TrajectoryController , std::vector<double> > joint_config;
+
+
+         double joints_head[] = {0.0, -0.9};
+         double joints_torso[] = {0.0, 0.2};
+         double joints_l_arm[] = {1.2, -0.6, 0.0, -2.8, 1.55, 0.0, 0.0};
+         double joints_r_arm[] = {-1.2, 0.6, 0.0, 2.8, -1.55, 0.0, 0.0};
+
+         joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
+         joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
+         joint_config[HEAD] = trajectory_control_helper.makeVector(joints_head, 2);
+         joint_config[TORSO] = trajectory_control_helper.makeVector(joints_torso, 2);
+
+         trajectory_control_helper.goToJointConfiguration(joint_config, 4.0 );
+
+     }
+
+     void ControlModeSwitcher::goToShutdownMode4(){
+
+         std::map<TrajectoryController , std::vector<double> > joint_config;
+
+         double joints_l_arm[] = {-1.0, -0.6, 0.0, -2.2, 1.55, 0.0, 0.0};
+         double joints_r_arm[] = {1.0, 0.6, 0.0, 2.2, -1.55, 0.0, 0.0};
+
+         joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
+         joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
+
+         trajectory_control_helper.goToJointConfiguration(joint_config, 3.0 );
+
+     }
+
+     void ControlModeSwitcher::goToShutdownMode5(){
+
+         std::map<TrajectoryController , std::vector<double> > joint_config;
+
+         double joints_l_arm[] = {-1.3, 0.0, 1.57, 0.23, 0.0, 0.28, 0.0};
+         double joints_r_arm[] = {1.3, 0.0, -1.57, -0.23, 0.0, -0.28, 0.0};
+         double joints_torso[] = {0.0, 0.76};
+
+         joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
+         joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
+         joint_config[TORSO] = trajectory_control_helper.makeVector(joints_torso, 2);
+
+         trajectory_control_helper.goToJointConfiguration(joint_config, 5.0 );
+
+     }
+
+
+
     void ControlModeSwitcher::goToStandMode(){
 
-        std::vector<std::string> names_l, names_r;
-        std::vector<double> positions_l, positions_r;
+        std::map<TrajectoryController , std::vector<double> > joint_config;
 
-        names_l.push_back("l_shoulder_pitch");   positions_l.push_back(0.79);
-        names_l.push_back("l_shoulder_roll");    positions_l.push_back(-0.27);
-        names_l.push_back("l_shoulder_yaw");    positions_l.push_back(0.0);
-        names_l.push_back("l_elbow");     positions_l.push_back(-1.57);
-        names_l.push_back("l_wrist_yaw1");      positions_l.push_back(1.55);
-        names_l.push_back("l_wrist_roll");       positions_l.push_back(0.0);
-        names_l.push_back("l_wrist_yaw2");          positions_l.push_back(0.0);
+        double joints_left_arm[] = {0.79, -0.27, 0.0, -1.57, 1.55, 0.0, 0.0};
+        double joints_right_arm[] = {-0.79, 0.27, 0.0, 1.57, -1.55, 0.0, 0.0};
 
-        names_r.push_back("r_shoulder_pitch");   positions_r.push_back(-0.79);
-        names_r.push_back("r_shoulder_roll");    positions_r.push_back(0.27);
-        names_r.push_back("r_shoulder_yaw");    positions_r.push_back(0.0);
-        names_r.push_back("r_elbow");     positions_r.push_back(1.57);
-        names_r.push_back("r_wrist_yaw1");      positions_r.push_back(-1.55);
-        names_r.push_back("r_wrist_roll");       positions_r.push_back(0.0);
-        names_r.push_back("r_wrist_yaw2");          positions_r.push_back(0.0);
-
-        control_msgs::FollowJointTrajectoryGoal trajectory_goal_r_;
-        control_msgs::FollowJointTrajectoryGoal trajectory_goal_l_;
-        if (!trajectory_client_left_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_switcher] Time out while waititing for left_arm_traj_controller");
-        if (!trajectory_client_right_->waitForServer(ros::Duration(5.0)))
-            ROS_WARN("[control_mode_switcher] Time out while waititing for right_arm_traj_controller");
-        if (trajectory_client_left_->isServerConnected() && trajectory_client_right_->isServerConnected() )
-        {
-            // Goal for left arm
-            trajectory_msgs::JointTrajectory joint_trajectory_l;
-            joint_trajectory_l.joint_names = names_l;
-
-            trajectory_msgs::JointTrajectoryPoint point_l;
-            point_l.positions = positions_l;
-            point_l.time_from_start = ros::Duration(2.0);
-            joint_trajectory_l.points.push_back(point_l);
-
-            trajectory_goal_l_.trajectory = joint_trajectory_l;
-
-            //Goal for right arm
-            trajectory_msgs::JointTrajectory joint_trajectory_r;
-            joint_trajectory_r.joint_names = names_r;
-
-            trajectory_msgs::JointTrajectoryPoint point_r;
-            point_r.positions = positions_r;
-            point_r.time_from_start = ros::Duration(2.0);
-            joint_trajectory_r.points.push_back(point_r);
-
-
-            trajectory_goal_r_.trajectory = joint_trajectory_r;
-
-            //Send goals to controllers
-            trajectory_client_left_->sendGoal(trajectory_goal_l_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
-                                         boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
-                                         boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
-
-            trajectory_client_right_->sendGoal(trajectory_goal_r_, boost::bind(&ControlModeSwitcher::trajectoryDoneCb, this, _1, _2),
-                                         boost::bind(&ControlModeSwitcher::trajectoryActiveCB, this),
-                                         boost::bind(&ControlModeSwitcher::trajectoryFeedbackCB, this, _1));
-            stand_complete = false;
-
-            ros::Rate rate(ros::Duration(0.1));
-            while (!stand_complete){
-                rate.sleep();
-            }
-            return;
-        }
-        else{
-            ROS_WARN("[control_mode_switcher] Skipping Arm Motion while going to stand");
-        }
+        joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_left_arm, 7);
+        joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_right_arm, 7);
+        trajectory_control_helper.goToJointConfiguration(joint_config, 3.0 );
 
     }
 
@@ -360,9 +400,13 @@ namespace control_mode_switcher{
     void ControlModeSwitcher::trajectoryFeedbackCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr& feedback)
     {    }
 
-    void ControlModeSwitcher::trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
+    void ControlModeSwitcher::trajectoryLeftArmDoneCb(const actionlib::SimpleClientGoalState& state,
                                                const control_msgs::FollowJointTrajectoryResultConstPtr& result)
-    {        stand_complete = true; }
+    {        stand_complete_right = true; }
+
+    void ControlModeSwitcher::trajectoryRightArmDoneCb(const actionlib::SimpleClientGoalState& state,
+                                               const control_msgs::FollowJointTrajectoryResultConstPtr& result)
+    {        stand_complete_left = true; }
 
     void ControlModeSwitcher::stepPlanActiveCB(){
 

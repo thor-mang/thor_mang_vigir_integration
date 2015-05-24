@@ -26,6 +26,8 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/Empty.h>
 
+#include <thor_mang_control_mode_switcher/trajectory_control_helper.h>
+
 namespace control_mode_switcher{
     typedef actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> TrajectoryActionClient;
 typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepPlanAction> StepPlanActionClient;
@@ -40,7 +42,11 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      void executeSwitchControlModeCallback(const vigir_humanoid_control_msgs::ChangeControlModeGoalConstPtr& goal);
      void goToStandMode();
      void goToSoftStop();
-
+     void goToShutdownMode1();
+     void goToShutdownMode2();
+     void goToShutdownMode3();
+     void goToShutdownMode4();
+     void goToShutdownMode5();
 
      void getStartedAndStoppedControllers();
      void notifyNewControlMode(std::string new_mode, int new_idx, flor_control_msgs::FlorControlMode msg);
@@ -56,7 +62,9 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
 
      void trajectoryActiveCB();
      void trajectoryFeedbackCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr& feedback);
-     void trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
+     void trajectoryLeftArmDoneCb(const actionlib::SimpleClientGoalState& state,
+                                                       const control_msgs::FollowJointTrajectoryResultConstPtr& result);
+     void trajectoryRightArmDoneCb(const actionlib::SimpleClientGoalState& state,
                                                        const control_msgs::FollowJointTrajectoryResultConstPtr& result);
      void stepPlanActiveCB();
      void stepPlanFeedbackCB(const vigir_footstep_planning_msgs::ExecuteStepPlanFeedbackConstPtr& feedback);
@@ -88,7 +96,8 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      std::vector<std::string> stopped_controllers;
 
      bool run_on_real_robot;
-     bool stand_complete;
+     bool stand_complete_right;
+     bool stand_complete_left;
      bool allow_all_mode_transitions;
 
      std::string current_mode_;
@@ -101,6 +110,10 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      std::vector <std::string> default_desired_controllers;
      std::vector < std::vector<std::string> > allowed_transitions;
      std::vector <std::string> default_allowed_transitions;
+
+     TrajectoryControlHelper trajectory_control_helper;
+
+     bool accept_new_mode_change;
 
     };
 }

@@ -107,9 +107,11 @@ catkin_package(
 include_directories(include ${catkin_INCLUDE_DIRS})
 ## Specify additional locations of header files
 
-add_library(thor_mang_control_mode_switcher
+add_library(thor_mang_control_mode_switcher  
    src/thor_mang_control_mode_switcher.cpp
+   src/trajectory_control_helper.cpp
    include/${PROJECT_NAME}/thor_mang_control_mode_switcher.h
+   include/${PROJECT_NAME}/trajectory_control_helper.h
    
  )
 
