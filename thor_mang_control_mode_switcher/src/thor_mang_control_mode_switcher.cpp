@@ -309,9 +309,12 @@ namespace control_mode_switcher{
 
          double joints_left_arm[] = {1.2, -0.27, 0.0, -2.0, 1.55, 0.0, 0.0};
          double joints_right_arm[] = {-1.2, 0.27, 0.0, 2.0, -1.55, 0.0, 0.0};
+         double joints_torso[] = {0.0, 0.2};
 
          joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_left_arm,7);
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_right_arm,7);
+         joint_config[TORSO] = trajectory_control_helper.makeVector(joints_torso, 2);
+
          trajectory_control_helper.goToJointConfiguration(joint_config, 3.0, true );
      }
 
@@ -334,14 +337,13 @@ namespace control_mode_switcher{
 
 
          double joints_head[] = {0.0, -0.9};
-         double joints_torso[] = {0.0, 0.2};
+
          double joints_l_arm[] = {1.2, -0.6, 0.0, -2.8, 1.55, 0.0, 0.0};
          double joints_r_arm[] = {-1.2, 0.6, 0.0, 2.8, -1.55, 0.0, 0.0};
 
          joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
          joint_config[HEAD] = trajectory_control_helper.makeVector(joints_head, 2);
-         joint_config[TORSO] = trajectory_control_helper.makeVector(joints_torso, 2);
 
          trajectory_control_helper.goToJointConfiguration(joint_config, 4.0, true );
 
