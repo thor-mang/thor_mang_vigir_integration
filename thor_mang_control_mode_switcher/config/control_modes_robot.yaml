@@ -52,6 +52,7 @@ atlas_controller:
             desired_controllers_to_start: []
             transitions:
                 - "whole_body"
+                - "shutdown"
         falling:
 # Reacting to a fall
             bdi_mode: 7

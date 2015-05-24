@@ -60,8 +60,8 @@ namespace control_mode_switcher{
 
 
 
-    void TrajectoryControlHelper::goToJointConfiguration(std::map<TrajectoryController , std::vector<double> > joint_config, float duration){
-
+    void TrajectoryControlHelper::goToJointConfiguration(std::map<TrajectoryController , std::vector<double> > joint_config, float duration, bool wait_till_finished){
+        wait_till_trajectory_finished = wait_till_finished;
         completion_counter = joint_config.size();
 
         for (std::map<TrajectoryController, std::vector<double> >::iterator iter = joint_config.begin(); iter != joint_config.end(); iter++) {
@@ -100,19 +100,20 @@ namespace control_mode_switcher{
 
         }
 
-        ROS_INFO("[control_mode_switcher] starting to wait for feedback of trajectory control action");
-
-        //TODO testing
-        ros::Duration max_wait_time(2*duration);
-        ros::Time begin = ros::Time::now();
-        ros::Rate rate(ros::Duration(0.1));
-        while (completion_counter>0){
-            if (ros::Time::now() - begin > max_wait_time) {
-                ROS_WARN("[control_mode_switcher] Timeout in send trajectory");
-                completion_counter = 0;
-                break;
+        if (wait_till_trajectory_finished){
+            ROS_INFO("[control_mode_switcher] waiting for finished feedback of trajectory control action ...");
+            //TODO testing
+            ros::Duration max_wait_time(2*duration);
+            ros::Time begin = ros::Time::now();
+            ros::Rate rate(ros::Duration(0.1));
+            while (completion_counter>0){
+                if (ros::Time::now() - begin > max_wait_time) {
+                    ROS_WARN("[control_mode_switcher] Timeout in send trajectory");
+                    completion_counter = 0;
+                    break;
+                }
+                rate.sleep();
             }
-            rate.sleep();
         }
 
     }
@@ -126,8 +127,12 @@ namespace control_mode_switcher{
     {    }
 
     void TrajectoryControlHelper::trajectoryDoneCb(const actionlib::SimpleClientGoalState& state,
-                                               const control_msgs::FollowJointTrajectoryResultConstPtr& result)
-    {        completion_counter--; }
+                                                   const control_msgs::FollowJointTrajectoryResultConstPtr& result)
+    {
+
+            completion_counter--;
+
+    }
 
 
     //template<typename T>

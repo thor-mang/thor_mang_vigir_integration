@@ -49,9 +49,10 @@ atlas_controller:
             switch_mode: 3
             active_joint_controllers:  ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "neck_traj_controller", "lower_body_tracking_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: []
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
             transitions:
                 - "whole_body"
+                - "shutdown"
         falling:
 # Reacting to a fall
             bdi_mode: 7

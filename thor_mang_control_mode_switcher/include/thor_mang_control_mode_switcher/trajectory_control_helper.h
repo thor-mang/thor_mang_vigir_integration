@@ -33,7 +33,7 @@ class TrajectoryControlHelper {
       TrajectoryControlHelper();
       virtual ~TrajectoryControlHelper();
 
-      void goToJointConfiguration(std::map<TrajectoryController , std::vector<double> > joint_config, float duration);
+      void goToJointConfiguration(std::map<TrajectoryController , std::vector<double> > joint_config, float duration, bool wait_till_finished);
       //template<typename T>
       std::vector<double> makeVector(double values[], int length);
 
@@ -54,6 +54,7 @@ class TrajectoryControlHelper {
 
 
      int completion_counter;
+     bool wait_till_trajectory_finished;
 
      std::map < TrajectoryController, std::vector<std::string> > controller_joints;
 

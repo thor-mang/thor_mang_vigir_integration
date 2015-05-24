@@ -312,7 +312,7 @@ namespace control_mode_switcher{
 
          joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_left_arm,7);
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_right_arm,7);
-         trajectory_control_helper.goToJointConfiguration(joint_config, 3.0 );
+         trajectory_control_helper.goToJointConfiguration(joint_config, 3.0, true );
      }
 
      void ControlModeSwitcher::goToShutdownMode2(){
@@ -324,7 +324,7 @@ namespace control_mode_switcher{
 
          joint_config[LEFT_LEG] = trajectory_control_helper.makeVector(joints_left_leg, 6);
          joint_config[RIGHT_LEG] = trajectory_control_helper.makeVector(joints_right_leg, 6);
-         trajectory_control_helper.goToJointConfiguration(joint_config, 6.0 );
+         trajectory_control_helper.goToJointConfiguration(joint_config, 8.0, true );
 
      }
 
@@ -343,7 +343,7 @@ namespace control_mode_switcher{
          joint_config[HEAD] = trajectory_control_helper.makeVector(joints_head, 2);
          joint_config[TORSO] = trajectory_control_helper.makeVector(joints_torso, 2);
 
-         trajectory_control_helper.goToJointConfiguration(joint_config, 4.0 );
+         trajectory_control_helper.goToJointConfiguration(joint_config, 4.0, true );
 
      }
 
@@ -357,7 +357,7 @@ namespace control_mode_switcher{
          joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
 
-         trajectory_control_helper.goToJointConfiguration(joint_config, 3.0 );
+         trajectory_control_helper.goToJointConfiguration(joint_config, 3.0, true );
 
      }
 
@@ -373,7 +373,7 @@ namespace control_mode_switcher{
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
          joint_config[TORSO] = trajectory_control_helper.makeVector(joints_torso, 2);
 
-         trajectory_control_helper.goToJointConfiguration(joint_config, 5.0 );
+         trajectory_control_helper.goToJointConfiguration(joint_config, 5.0, true );
 
      }
 
@@ -388,7 +388,7 @@ namespace control_mode_switcher{
 
         joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_left_arm, 7);
         joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_right_arm, 7);
-        trajectory_control_helper.goToJointConfiguration(joint_config, 3.0 );
+        trajectory_control_helper.goToJointConfiguration(joint_config, 3.0, false );
 
     }
 
