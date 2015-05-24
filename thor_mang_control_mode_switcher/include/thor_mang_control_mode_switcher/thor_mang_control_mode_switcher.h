@@ -47,6 +47,7 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      void goToShutdownMode3();
      void goToShutdownMode4();
      void goToShutdownMode5();
+     void goToShutdownMode6();
 
      void getStartedAndStoppedControllers();
      void notifyNewControlMode(std::string new_mode, int new_idx, flor_control_msgs::FlorControlMode msg);

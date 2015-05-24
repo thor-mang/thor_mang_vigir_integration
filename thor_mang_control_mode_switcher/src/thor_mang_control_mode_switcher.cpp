@@ -309,7 +309,7 @@ namespace control_mode_switcher{
 
          double joints_left_arm[] = {1.2, -0.27, 0.0, -2.0, 1.55, 0.0, 0.0};
          double joints_right_arm[] = {-1.2, 0.27, 0.0, 2.0, -1.55, 0.0, 0.0};
-         double joints_torso[] = {0.0, 0.2};
+         double joints_torso[] = {0.0, 0.3};
 
          joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_left_arm,7);
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_right_arm,7);
@@ -322,8 +322,8 @@ namespace control_mode_switcher{
 
          std::map<TrajectoryController , std::vector<double> > joint_config;
 
-         double joints_left_leg[] = {1.42, -0.17, 3.02, -1.57, -0.15, 0.0};
-         double joints_right_leg[] = {-1.42, 0.17, -3.02, 1.57, 0.15, 0.0};
+         double joints_left_leg[] = {1.42, -0.17, 3.02, -1.67, -0.15, 0.0};
+         double joints_right_leg[] = {-1.42, 0.17, -3.02, 1.67, 0.15, 0.0};
 
          joint_config[LEFT_LEG] = trajectory_control_helper.makeVector(joints_left_leg, 6);
          joint_config[RIGHT_LEG] = trajectory_control_helper.makeVector(joints_right_leg, 6);
@@ -353,8 +353,8 @@ namespace control_mode_switcher{
 
          std::map<TrajectoryController , std::vector<double> > joint_config;
 
-         double joints_l_arm[] = {-1.0, -0.6, 0.0, -2.2, 1.55, 0.0, 0.0};
-         double joints_r_arm[] = {1.0, 0.6, 0.0, 2.2, -1.55, 0.0, 0.0};
+         double joints_l_arm[] = {0, -0.6, 0.0, -2.2, 1.55, 0.0, 0.0};
+         double joints_r_arm[] = {0, 0.6, 0.0, 2.2, -1.55, 0.0, 0.0};
 
          joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
@@ -367,9 +367,25 @@ namespace control_mode_switcher{
 
          std::map<TrajectoryController , std::vector<double> > joint_config;
 
-         double joints_l_arm[] = {-1.3, 0.0, 1.57, 0.23, 0.0, 0.28, 0.0};
-         double joints_r_arm[] = {1.3, 0.0, -1.57, -0.23, 0.0, -0.28, 0.0};
-         double joints_torso[] = {0.0, 0.76};
+         double joints_l_arm[] = {-0.7, -0.6, 0.0, -1.2, 1.55, 0.0, 0.0};
+         double joints_r_arm[] = {0.7, 0.6, 0.0, 1.2, -1.55, 0.0, 0.0};
+         double joints_torso[] = {0.0, 0.45};
+
+         joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
+         joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
+         joint_config[TORSO] = trajectory_control_helper.makeVector(joints_torso, 2);
+
+         trajectory_control_helper.goToJointConfiguration(joint_config, 5.0, true );
+
+     }
+
+     void ControlModeSwitcher::goToShutdownMode6(){
+
+         std::map<TrajectoryController , std::vector<double> > joint_config;
+
+         double joints_l_arm[] = {-1.4, 0.0, 1.57, 0.23, 0.0, 0.28, 0.0};
+         double joints_r_arm[] = {1.4, 0.0, -1.57, -0.23, 0.0, -0.28, 0.0};
+         double joints_torso[] = {0.0, 0.96};
 
          joint_config[LEFT_ARM] = trajectory_control_helper.makeVector(joints_l_arm, 7);
          joint_config[RIGHT_ARM] = trajectory_control_helper.makeVector(joints_r_arm, 7);
