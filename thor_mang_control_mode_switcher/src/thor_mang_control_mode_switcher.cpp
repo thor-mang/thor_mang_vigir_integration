@@ -240,6 +240,10 @@ namespace control_mode_switcher{
 
          }
 
+         if ( allow_all_mode_transitions ){
+             switch_successfull = true ;
+         }
+
          // If requested mode in known publish changed mode
          if (switch_successfull){
              if (mode_request == "stand"){
