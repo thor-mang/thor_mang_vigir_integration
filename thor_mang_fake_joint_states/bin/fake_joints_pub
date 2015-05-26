@@ -3,7 +3,7 @@
 import roslib; roslib.load_manifest('thor_mang_fake_joint_states')
 import rospy
 
-from thor_mang_fake_joint_states import FakeJointStates
+from thor_mang_fake_joint_states.thor_mang_fake_joint_states import FakeJointStates
 
 if __name__ == '__main__':
     rospy.init_node('fake_joints_pub')
