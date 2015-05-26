@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('thor_mang_fake_joint_states')
+import rospy
+
+from thor_mang_fake_joint_states import FakeJointStates
+
+if __name__ == '__main__':
+    rospy.init_node('fake_joints_pub')
+    
+    FakeJointStates()
+
+    # Wait for ctrl-c to stop the application
+    rospy.spin()
+

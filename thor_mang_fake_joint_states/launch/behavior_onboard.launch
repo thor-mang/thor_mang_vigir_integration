@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<node name="fake_joints_pub" pkg="thor_mang_fake_joint_states" type="fake_joints_pub" output="screen" respawn="true"/>
+
+
+</launch>

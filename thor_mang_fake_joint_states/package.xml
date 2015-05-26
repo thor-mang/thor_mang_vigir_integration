@@ -1,0 +1,18 @@
+<package>
+  <name>thor_mang_fake_joint_states</name>
+  <version>1.0.0</version>
+  <description>
+     thor_mang_fake_joint_states
+  </description>
+  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/thor_mang_fake_joint_states</url>
+  <author>Philipp Schillinger</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rospy</run_depend>
+
+
+</package>
