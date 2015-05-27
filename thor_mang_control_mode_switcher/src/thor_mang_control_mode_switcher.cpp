@@ -60,9 +60,6 @@ namespace control_mode_switcher{
        allow_all_mode_transitions_ack_pub_.publish(ack);
 
        getStartedAndStoppedControllers();
-//       started_controllers.push_back("joint_state_controller");
-//       started_controllers.push_back("joint_state_controller");
-//       // /step_controller  -> + zweiter typ spater ohne haende /step_manipulate_controller
 
        flor_control_msgs::FlorControlMode changed_mode_msg;
        changed_mode_msg.header.stamp = ros::Time::now();
@@ -155,10 +152,7 @@ namespace control_mode_switcher{
          // Ignore case
          std::transform(mode_request.begin(), mode_request.end(), mode_request.begin(), ::tolower);
 
-         if (current_mode_ == mode_request){
-             ROS_INFO("[control_mode_switcher] No switch necessary, robot already in %s !", mode_request.c_str());
-             return true;
-         }
+
 
          // test if the requested transition is allowed
          bool switch_successfull = true;
@@ -182,6 +176,12 @@ namespace control_mode_switcher{
              transition_ok = true;
          }
 
+
+         if (current_mode_ == mode_request){
+//             ROS_INFO("[control_mode_switcher] No switch necessary, robot already in %s !", mode_request.c_str());
+//             return true;
+             transition_ok = true;
+         }
 
          if(! transition_ok){
              switch_successfull = false;
