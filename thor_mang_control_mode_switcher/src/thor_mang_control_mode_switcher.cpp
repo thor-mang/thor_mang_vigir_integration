@@ -500,7 +500,11 @@ namespace control_mode_switcher{
         controller_manager_msgs::SwitchController srv;
         srv.request.start_controllers = controllers_to_start;
         srv.request.stop_controllers = controllers_to_stop;
-        srv.request.strictness = controller_manager_msgs::SwitchController::Request::STRICT;
+        if (!allow_all_mode_transitions){
+            srv.request.strictness = controller_manager_msgs::SwitchController::Request::STRICT;}
+        else{
+            srv.request.strictness = controller_manager_msgs::SwitchController::Request::BEST_EFFORT;
+        }
 
 
         switch_controllers_client_.call(srv);
