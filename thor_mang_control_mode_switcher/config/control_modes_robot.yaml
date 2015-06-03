@@ -81,7 +81,7 @@ atlas_controller:
             switch_mode: 2
             active_joint_controllers: [ "neck_traj_controller", "whole_body_tracking_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["right_hand_traj_controller", "left_hand_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["waist_lidar_controller"]
             transitions:
                 - "stand"
         stand:
