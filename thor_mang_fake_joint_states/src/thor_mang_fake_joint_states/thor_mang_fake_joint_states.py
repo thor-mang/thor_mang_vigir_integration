@@ -28,6 +28,9 @@ class FakeJointStates(object):
                 velocity_list = list(joint_states.velocity)
                 velocity_list.append(0)
                 joint_states.velocity = tuple(velocity_list)
+                effort_list = list(joint_states.effort)
+                effort_list.append(0)
+                joint_states.effort = tuple(effort_list)
         self._pub.publish(joint_states)
 
 
