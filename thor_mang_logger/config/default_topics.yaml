@@ -4,11 +4,9 @@ topics_to_record:
 - /vigir/global_footstep_planner/step_plan_request/goal
 - /vigir/global_footstep_planner/step_plan_request/feedback
 - /vigir/global_footstep_planner/step_plan_request/result
-- /vigir_move_group/cancel
 - /vigir_move_group/feedback
 - /vigir_move_group/goal
 - /vigir_move_group/result
-- /vigir_move_group/status
 - /move_group/display_planned_path
 - /mode_controllers/control_mode_controller/change_control_mode/goal
 - /robot_controllers/footstep_controller/execute_step_plan/goal
@@ -23,4 +21,11 @@ topics_to_record:
 - /thor_mang/step_manipulate_controller/execute_step_plan/goal
 - /thor_mang/torso_traj_controller/follow_joint_trajectory/goal
 - /thor_mang/waist_lidar_controller/follow_joint_trajectory/goal
-
+- /flor/worldmodel/ocs/cloud_result
+- /worldmodel_cloud_to_mesh_node/mesh_shape
+- /camera/image_raw
+- /thor_mang/joint_states
+- /thor_mang/falling_controller/falling_controller/imu_rpy
+- /thor_mang/pelvis_imu
+- /flor/worldmodel/grid_map
+- /vigir/footstep_planning/vis/step_plan_vis
