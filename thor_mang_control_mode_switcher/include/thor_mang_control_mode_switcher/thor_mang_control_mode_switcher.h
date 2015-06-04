@@ -55,6 +55,7 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      void resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result);
      void ocsModeChangeCb(const flor_control_msgs::FlorControlModeCommand& mode);
      void allowAllModeTransitionsCb(const std_msgs::Bool & allow);
+     void allowFallingControllerCb(const std_msgs::Bool & allow);
      bool changeControlMode(std::string mode_request);
      bool switchControllers(std::vector<std::string> controllers_to_start);
      bool switchToTrajectoryControllers();
@@ -79,11 +80,13 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      ros::Publisher mode_name_pub_;
      ros::Publisher allow_all_mode_transitions_ack_pub_;
      ros::Publisher stand_prep_calibration_pub_;
+     ros::Publisher allow_falling_controller_ack_pub_;
 
      ros::Subscriber execute_footstep_sub_;
      ros::Subscriber result_footstep_sub_;
      ros::Subscriber ocs_mode_switch_sub_;
      ros::Subscriber allow_all_mode_transitions_sub_;
+     ros::Subscriber allow_falling_contoller_sub_;
 
      actionlib::SimpleActionServer<vigir_humanoid_control_msgs::ChangeControlModeAction> control_mode_action_server;
 
@@ -100,6 +103,7 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      bool stand_complete_right;
      bool stand_complete_left;
      bool allow_all_mode_transitions;
+     bool allow_falling_controller;
 
      std::string current_mode_;
      int current_mode_int_;

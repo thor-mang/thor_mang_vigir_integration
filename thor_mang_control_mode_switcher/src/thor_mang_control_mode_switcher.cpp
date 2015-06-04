@@ -39,12 +39,15 @@ namespace control_mode_switcher{
        mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, true);
        mode_name_pub_ = nh_.advertise<std_msgs::String>("/flor/controller/mode_name", 10, true);
        allow_all_mode_transitions_ack_pub_ = nh_.advertise<std_msgs::Bool>("/mode_controllers/control_mode_controller/allow_all_mode_transitions_acknowledgement", 10, false);
+       allow_falling_controller_ack_pub_ = nh_.advertise<std_msgs::Bool>("/mode_controllers/control_mode_controller/allow_falling_controller_acknowledgement", 10, false);
        stand_prep_calibration_pub_ = nh_.advertise<std_msgs::Empty>("/thor_mang/start_calibration", 10, false);
 
        execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
        result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
        ocs_mode_switch_sub_ = nh_.subscribe("/flor/controller/mode_command", 10, &ControlModeSwitcher::ocsModeChangeCb, this);
        allow_all_mode_transitions_sub_ = nh_.subscribe("/mode_controllers/control_mode_controller/allow_all_mode_transitions", 10, &ControlModeSwitcher::allowAllModeTransitionsCb, this);
+       allow_falling_contoller_sub_ = nh_.subscribe("/mode_controllers/control_mode_controller/allow_falling_controller", 10, &ControlModeSwitcher::allowFallingControllerCb, this);
+
 
        switch_controllers_client_ = nh_.serviceClient<controller_manager_msgs::SwitchController>("/thor_mang/controller_manager/switch_controller");
        list_controllers_client_ = nh_.serviceClient<controller_manager_msgs::ListControllers>("/thor_mang/controller_manager/list_controllers");
@@ -147,6 +150,22 @@ namespace control_mode_switcher{
 
      }
 
+     void ControlModeSwitcher::allowFallingControllerCb(const std_msgs::Bool & allow){
+         allow_falling_controller = allow.data;
+
+         std_msgs::Bool ack;
+         ack.data = allow_falling_controller;
+         allow_falling_controller_ack_pub_.publish(ack);
+
+         if (allow_falling_controller){
+             ROS_INFO("[control_mode_switcher] Enable falling controller");
+         }
+         else{
+             ROS_INFO("[control_mode_switcher] Disable falling controller");
+         }
+
+     }
+
      bool ControlModeSwitcher::changeControlMode(std::string mode_request){
 
          // Ignore case
@@ -214,7 +233,13 @@ namespace control_mode_switcher{
                      controllers_to_start=default_desired_controllers;
 
                      for (int i = 0; i< desired_controllers[mode_idx_int].size();i++){
-                         controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);
+                         if (!allow_falling_controller){
+                             if (desired_controllers[mode_idx_int][i] != "falling_controller"){
+                                 controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);}
+                         }
+                         else{
+                             controllers_to_start.push_back(desired_controllers[mode_idx_int][i]);
+                         }
                      }
 
                      if (mode_request == "soft_stop") {
