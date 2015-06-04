@@ -53,6 +53,7 @@ atlas_controller:
             transitions:
                 - "whole_body"
                 - "shutdown"
+                - "stand"
         falling:
 # Reacting to a fall
             bdi_mode: 7
