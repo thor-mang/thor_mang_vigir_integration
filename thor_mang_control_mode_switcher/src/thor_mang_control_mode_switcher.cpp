@@ -33,6 +33,7 @@ namespace control_mode_switcher{
        nh_.getParam("/atlas_controller/control_mode_to_controllers/all/transitions",default_allowed_transitions);
 
        allow_all_mode_transitions = false;
+       allow_falling_controller = false;
        accept_new_mode_change = true;
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
