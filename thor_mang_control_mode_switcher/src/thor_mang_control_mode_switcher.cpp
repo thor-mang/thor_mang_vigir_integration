@@ -156,7 +156,7 @@ namespace control_mode_switcher{
          std_msgs::Bool ack;
          ack.data = allow_falling_controller;
          allow_falling_controller_ack_pub_.publish(ack);
-
+         changeControlMode(current_mode_);
          if (allow_falling_controller){
              ROS_INFO("[control_mode_switcher] Enable falling controller");
          }
