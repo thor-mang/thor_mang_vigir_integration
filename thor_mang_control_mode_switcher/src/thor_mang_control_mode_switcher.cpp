@@ -44,7 +44,7 @@ namespace control_mode_switcher{
        stand_prep_calibration_pub_ = nh_.advertise<std_msgs::Empty>("/thor_mang/start_calibration", 10, false);
 
        execute_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/goal", 10, &ControlModeSwitcher::executeFootstepCb, this);
-       result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
+       //result_footstep_sub_ = nh_.subscribe("/vigir/footstep_manager/execute_step_plan/result", 10, &ControlModeSwitcher::resultFootstepCb, this);
        ocs_mode_switch_sub_ = nh_.subscribe("/flor/controller/mode_command", 10, &ControlModeSwitcher::ocsModeChangeCb, this);
        allow_all_mode_transitions_sub_ = nh_.subscribe("/mode_controllers/control_mode_controller/allow_all_mode_transitions", 10, &ControlModeSwitcher::allowAllModeTransitionsCb, this);
        allow_falling_contoller_sub_ = nh_.subscribe("/mode_controllers/control_mode_controller/allow_falling_controller", 10, &ControlModeSwitcher::allowFallingControllerCb, this);
@@ -126,10 +126,10 @@ namespace control_mode_switcher{
 
 
      void ControlModeSwitcher::resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result){
-         if ( (current_mode_ == "walk") || (current_mode_ =="walk_manipulate") ){
-         std::string new_mode = (current_mode_ == "walk_manipulate")? "stand_manipulate" : "stand";
-         changeControlMode(new_mode);
-         }
+//         if ( (current_mode_ == "walk") || (current_mode_ =="walk_manipulate") ){
+//         std::string new_mode = (current_mode_ == "walk_manipulate")? "stand_manipulate" : "stand";
+//         changeControlMode(new_mode);
+//         }
 
      }
 
