@@ -5,7 +5,7 @@
 #include <vigir_humanoid_control_msgs/ChangeControlModeAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
-#include <vigir_control_msgs/FlorControlMode.h>
+#include <vigir_control_msgs/VigirControlMode.h>
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <vigir_planning_msgs/MoveAction.h>

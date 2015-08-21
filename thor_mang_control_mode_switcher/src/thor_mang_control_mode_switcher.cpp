@@ -134,8 +134,11 @@ namespace control_mode_switcher{
      }
 
      void ControlModeSwitcher::ocsModeChangeCb(const vigir_control_msgs::VigirControlModeCommand& mode){
-        int requested_mode = mode.requested_control_mode;
-        std::string switch_mode = allowed_control_modes[requested_mode];
+        // @TODO: This was changed during open sourcing (#3057). Verify it still works with real robot
+        //int requested_mode = mode.requested_control_mode;
+        //std::string switch_mode = allowed_control_modes[requested_mode];
+       
+        std::string switch_mode = mode.requested_control_mode;
         changeControlMode(switch_mode);
      }
 
