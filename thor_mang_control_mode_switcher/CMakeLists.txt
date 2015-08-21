@@ -8,7 +8,7 @@ project(thor_mang_control_mode_switcher)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  flor_control_msgs
+  vigir_control_msgs
   roscpp
   actionlib
   actionlib_msgs
@@ -19,8 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
   control_msgs
   controller_manager_msgs
   vigir_footstep_planning_msgs
-  flor_control_msgs
-
 )
 ## System dependencies are found with CMake's conventions
 #find_package(Boost REQUIRED COMPONENTS system)
@@ -94,7 +92,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES thor_mang_control_mode_switcher
-  CATKIN_DEPENDS flor_control_msgs roscpp actionlib actionlib_msgs vigir_humanoid_control_msgs moveit_msgs trajectory_msgs vigir_planning_msgs control_msgs controller_manager_msgs vigir_footstep_planning_msgs flor_control_msgs
+  CATKIN_DEPENDS vigir_control_msgs roscpp actionlib actionlib_msgs vigir_humanoid_control_msgs moveit_msgs trajectory_msgs vigir_planning_msgs control_msgs controller_manager_msgs vigir_footstep_planning_msgs
 #  DEPENDS system_lib
 )
 

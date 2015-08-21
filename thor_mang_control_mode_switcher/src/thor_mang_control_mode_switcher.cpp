@@ -37,7 +37,7 @@ namespace control_mode_switcher{
        accept_new_mode_change = true;
        nh_.param("run_on_real_robot", run_on_real_robot,true);
        control_mode_action_server.start();
-       mode_changed_pub_ = nh_.advertise<flor_control_msgs::FlorControlMode>("/flor/controller/mode", 10, true);
+       mode_changed_pub_ = nh_.advertise<vigir_control_msgs::VigirControlMode>("/flor/controller/mode", 10, true);
        mode_name_pub_ = nh_.advertise<std_msgs::String>("/flor/controller/mode_name", 10, true);
        allow_all_mode_transitions_ack_pub_ = nh_.advertise<std_msgs::Bool>("/mode_controllers/control_mode_controller/allow_all_mode_transitions_acknowledgement", 10, false);
        allow_falling_controller_ack_pub_ = nh_.advertise<std_msgs::Bool>("/mode_controllers/control_mode_controller/allow_falling_controller_acknowledgement", 10, false);
@@ -65,7 +65,7 @@ namespace control_mode_switcher{
 
        getStartedAndStoppedControllers();
 
-       flor_control_msgs::FlorControlMode changed_mode_msg;
+       vigir_control_msgs::VigirControlMode changed_mode_msg;
        changed_mode_msg.header.stamp = ros::Time::now();
        changed_mode_msg.bdi_current_behavior = 1;
        changed_mode_msg.control_mode = 0;
@@ -133,7 +133,7 @@ namespace control_mode_switcher{
 
      }
 
-     void ControlModeSwitcher::ocsModeChangeCb(const flor_control_msgs::FlorControlModeCommand& mode){
+     void ControlModeSwitcher::ocsModeChangeCb(const vigir_control_msgs::VigirControlModeCommand& mode){
         int requested_mode = mode.requested_control_mode;
         std::string switch_mode = allowed_control_modes[requested_mode];
         changeControlMode(switch_mode);
@@ -176,7 +176,7 @@ namespace control_mode_switcher{
 
          // test if the requested transition is allowed
          bool switch_successfull = true;
-         flor_control_msgs::FlorControlMode changed_mode_msg;
+         vigir_control_msgs::VigirControlMode changed_mode_msg;
          int mode_idx_int = current_mode_int_;
          bool transition_ok = false;
 
@@ -306,7 +306,7 @@ namespace control_mode_switcher{
 
      }
 
-     void ControlModeSwitcher::notifyNewControlMode(std::string new_mode, int new_idx, flor_control_msgs::FlorControlMode msg){
+     void ControlModeSwitcher::notifyNewControlMode(std::string new_mode, int new_idx, vigir_control_msgs::VigirControlMode msg){
          mode_changed_pub_.publish(msg);
          std_msgs::String mode_name;
          mode_name.data = new_mode;

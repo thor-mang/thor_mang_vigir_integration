@@ -5,7 +5,7 @@
 #include <vigir_humanoid_control_msgs/ChangeControlModeAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
-#include <flor_control_msgs/FlorControlMode.h>
+#include <vigir_control_msgs/FlorControlMode.h>
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <vigir_planning_msgs/MoveAction.h>
@@ -22,7 +22,7 @@
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanActionResult.h>
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanAction.h>
 #include <vigir_footstep_planning_msgs/ExecuteStepPlanGoal.h>
-#include <flor_control_msgs/FlorControlModeCommand.h>
+#include <vigir_control_msgs/VigirControlModeCommand.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Empty.h>
 
@@ -50,10 +50,10 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
      void goToShutdownMode6();
 
      void getStartedAndStoppedControllers();
-     void notifyNewControlMode(std::string new_mode, int new_idx, flor_control_msgs::FlorControlMode msg);
+     void notifyNewControlMode(std::string new_mode, int new_idx, vigir_control_msgs::VigirControlMode msg);
      void executeFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionGoalConstPtr& goal);
      void resultFootstepCb(const vigir_footstep_planning_msgs::ExecuteStepPlanActionResultConstPtr& result);
-     void ocsModeChangeCb(const flor_control_msgs::FlorControlModeCommand& mode);
+     void ocsModeChangeCb(const vigir_control_msgs::VigirControlModeCommand& mode);
      void allowAllModeTransitionsCb(const std_msgs::Bool & allow);
      void allowFallingControllerCb(const std_msgs::Bool & allow);
      bool changeControlMode(std::string mode_request);
@@ -110,7 +110,7 @@ typedef actionlib::SimpleActionClient<vigir_footstep_planning_msgs::ExecuteStepP
 
      std::vector<std::string> allowed_control_modes;
      std::vector<int> bdi_control_modes;
-     std::vector<int> flor_control_modes;
+     std::vector<int> vigir_control_modes;
      std::vector < std::vector<std::string> > desired_controllers;
      std::vector <std::string> default_desired_controllers;
      std::vector < std::vector<std::string> > allowed_transitions;
