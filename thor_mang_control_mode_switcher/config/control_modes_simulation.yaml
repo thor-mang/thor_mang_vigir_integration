@@ -49,7 +49,7 @@ atlas_controller:
             switch_mode: 3
             active_joint_controllers:  ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "neck_traj_controller", "lower_body_tracking_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "whole_body"
                 - "shutdown"
@@ -60,7 +60,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: ["whole_body_traj_controller", "neck_traj_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stop"
         freeze:
@@ -70,7 +70,7 @@ atlas_controller:
             switch_mode: 3
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_tracking_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stand_prep"
                 - "stand"
@@ -81,7 +81,7 @@ atlas_controller:
             switch_mode: 2
             active_joint_controllers: [ "neck_traj_controller", "whole_body_tracking_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "head_traj_controller", "left_hand_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "head_traj_controller", "left_hand_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stand"
         stand:
@@ -90,7 +90,7 @@ atlas_controller:
             switch_mode: 2
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stand_manipulate"
                 - "walk"
@@ -103,7 +103,7 @@ atlas_controller:
             switch_mode: 2
             active_joint_controllers: [ "left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "walk_manipulate"
                 - "manipulate"
@@ -115,7 +115,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "left_leg_traj_controller", "right_leg_traj_controller", "torso_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "left_leg_traj_controller", "right_leg_traj_controller", "torso_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stand"
         walk_manipulate:
@@ -124,7 +124,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: [ "left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
-            desired_controllers_to_start: ["left_leg_traj_controller", "right_leg_traj_controller", "torso_traj_controller", "left_arm_traj_controller", "right_arm_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_leg_traj_controller", "right_leg_traj_controller", "torso_traj_controller", "left_arm_traj_controller", "right_arm_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stand_manipulate"
         manipulate:
@@ -133,7 +133,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: ["pelvis_traj_controller" ]
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stand"
                 - "stand_manipulate"
@@ -145,7 +145,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: ["whole_body_traj_controller", "neck_traj_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "freeze"
                 - "manipulate"
@@ -155,7 +155,7 @@ atlas_controller:
             switch_mode: 2
             active_joint_controllers: ["whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["waist_lidar_controller"]
+            desired_controllers_to_start: ["waist_lidar_controller","head_lidar_controller"]
             transitions:
                 - "stop"
         manipulate_compliant_impedance:
@@ -164,7 +164,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: ["left_arm_traj_impedance_controller", "right_arm_traj_impedance_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: ["pelvis_traj_controller", "left_arm_compliant_joint_impedance_controller", "right_arm_compliant_joint_impedance_controller" ]
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "manipulate"
                 - "stand"
@@ -176,7 +176,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: ["left_arm_traj_hybrid_controller", "right_arm_traj_hybrid_controller", "torso_traj_controller", "lower_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: ["pelvis_traj_controller", "left_arm_stiff_joint_impedance_controller", "right_arm_stiff_joint_impedance_controller" ]
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "manipulate"
                 - "stand"
@@ -188,7 +188,7 @@ atlas_controller:
             switch_mode: 1
             active_joint_controllers: ["whole_body_traj_controller", "neck_traj_controller"]
             active_robot_controllers: []
-            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_traj_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller", "head_lidar_controller"]
             transitions:
                 - "stop"
         all:
