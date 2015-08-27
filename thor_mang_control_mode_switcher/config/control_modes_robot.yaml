@@ -141,6 +141,7 @@ atlas_controller:
                 - "stand_manipulate"
                 - "manipulate_compliant_impedance"
                 - "manipulate_stiff_impedance"
+                - "manipulate_compliant_admittance"
         whole_body:
             bdi_mode: 7
             upper_body_control:  -1
