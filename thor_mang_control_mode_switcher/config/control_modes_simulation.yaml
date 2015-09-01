@@ -167,6 +167,7 @@ atlas_controller:
             active_joint_controllers: [ "whole_body_tracking_controller", "neck_traj_controller"]
             active_robot_controllers: [ "footstep_controller" ]
             desired_controllers_to_start: ["left_arm_traj_controller", "right_arm_compliant_controller", "torso_traj_controller",  "left_leg_traj_controller", "right_leg_traj_controller", "right_hand_traj_controller", "left_hand_traj_controller", "head_traj_controller", "waist_lidar_controller"]
+            transitions:
                 - "manipulate"
                 - "stand"
                 - "stand_manipulate"
